@@ -6,4 +6,4 @@ const WORLD_SIZE :int = 256
 const TILE_SIZE :int = 16
 
 func generate_world() -> void:
-	set_tile(Vector2(0, 0), 0, TILE_SIZE, Tiles)
+	set_cells_autotile([Vector2(-1, -1), Vector2(0, -1), Vector2(0, 0), Vector2(1, 0), Vector2(2, 0),Vector2(1, 1), Vector2(1, 2), Vector2(1, -1)], 1, TILE_SIZE, Tiles)
