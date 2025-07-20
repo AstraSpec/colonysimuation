@@ -1,11 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=4 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
+[ext_resource type="Script" path="res://src/camera.gd" id="2_qyceu"]
 
 [node name="Main" type="Node2D" node_paths=PackedStringArray("WorldGeneration")]
 script = ExtResource("1_c6mbo")
 WorldGeneration = NodePath("WorldGeneration")
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("2_qyceu")
 
 [node name="WorldGeneration" type="FastTileMap" parent="."]
 script = ExtResource("1_rx1eh")
