@@ -1,10 +1,15 @@
 [configuration]
 
 entry_symbol = "library_init"
-compatibility_minimum = "4.1"
+compatibility_minimum = "4.3"
 reloadable = true
 
 [libraries]
 
 windows.debug.x86_64 = "res://bin/colonysim.windows.template_debug.x86_64.dll"
-windows.release.x86_64 = "res://bin/colonysim.windows.template_release.x86_64.dll" 
+windows.release.x86_64 = "res://bin/colonysim.windows.template_release.x86_64.dll"
+
+[icons]
+
+FastTileMap = "res://assets/icons/TileMap.svg"
+Region = "res://assets/icons/Node2D.svg"
