@@ -1,3 +1,21 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Build artifacts
+*.obj
+*.dll
+*.lib
+*.exp
+*.a
+*.framework/
+*.simulator.a
+
+# Bin directory (contains compiled extensions)
+colonysimulation/bin/
+
+# SCons build cache
+.sconsign.dblite
+
+# Generated files
+godot-cpp/gen/
