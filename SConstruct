@@ -18,7 +18,7 @@ sources = Glob("src/*.cpp")
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
-        "colonysimulation/bin/FastTileMap.{}.{}.framework/FastTileMap.{}.{}".format(
+        "colonysimulation/bin/colonysim.{}.{}.framework/colonysim.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=sources,
@@ -26,17 +26,17 @@ if env["platform"] == "macos":
 elif env["platform"] == "ios":
     if env["ios_simulator"]:
         library = env.StaticLibrary(
-            "colonysimulation/bin/FastTileMap.{}.{}.simulator.a".format(env["platform"], env["target"]),
+            "colonysimulation/bin/colonysim.{}.{}.simulator.a".format(env["platform"], env["target"]),
             source=sources,
         )
     else:
         library = env.StaticLibrary(
-            "colonysimulation/bin/FastTileMap.{}.{}.a".format(env["platform"], env["target"]),
+            "colonysimulation/bin/colonysim.{}.{}.a".format(env["platform"], env["target"]),
             source=sources,
         )
 else:
     library = env.SharedLibrary(
-        "colonysimulation/bin/FastTileMap{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        "colonysimulation/bin/colonysim{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,
     )
 
