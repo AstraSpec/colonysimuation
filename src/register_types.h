@@ -5,7 +5,7 @@
 
 using namespace godot;
 
-void initialize_fast_tilemap_module(ModuleInitializationLevel p_level);
-void uninitialize_fast_tilemap_module(ModuleInitializationLevel p_level);
+void initialize_colonysim_module(ModuleInitializationLevel p_level);
+void uninitialize_colonysim_module(ModuleInitializationLevel p_level);
 
 #endif // ! COLONYSIM_REGISTER_TYPES_H
