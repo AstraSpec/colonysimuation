@@ -1,0 +1,12 @@
+[
+  {
+	"id": "stone_floor",
+	"name": "Stone",
+	"type": "terrain",
+  },
+  {
+	"id": "dirt_floor",
+	"name": "Dirt",
+	"type": "terrain",
+  }
+] 

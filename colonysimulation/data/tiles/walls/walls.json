@@ -1,0 +1,16 @@
+[
+  {
+	"id": "stone_wall",
+	"name": "Stone Wall",
+	"type": "wall",
+	"atlas": 0,
+	"hardness": 10,
+  },
+  {
+	"id": "mud_wall",
+	"name": "Mud Wall",
+	"type": "wall",
+	"atlas": 1,
+	"hardness": 7,
+  }
+] 
