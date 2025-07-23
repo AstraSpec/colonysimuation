@@ -1,0 +1,15 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://4m3nonvixbry"]
+
+[ext_resource type="Texture2D" uid="uid://di2fxysxtuacf" path="res://assets/tiles/terrain.png" id="1_aqyoo"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_k1j6f"]
+texture = ExtResource("1_aqyoo")
+0:0/size_in_atlas = Vector2i(3, 3)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(-16, -16)
+3:0/size_in_atlas = Vector2i(3, 3)
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(-16, -16)
+
+[resource]
+sources/0 = SubResource("TileSetAtlasSource_k1j6f")
