@@ -25,20 +25,20 @@ class FastTileMap: public Node2D{
 
 protected:
 	static void _bind_methods();
-	Dictionary tileRIDs;
-
-private:
-    int ATLAS_SIZE = 4;
+    
+    private:
+    static constexpr int ATLAS_SIZE = 4;
     static const std::unordered_map<int, Vector2> autotile_variant_map;
+	Dictionary tileRIDs;
 
 public:
     FastTileMap();
     ~FastTileMap();
 
-    void set_tile(Vector2 cellPos, int tile, int TILE_SIZE, Ref<Texture2D> texture);
-    void clear_tiles(Dictionary tileRIDs);
+    void set_tile(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Texture2D> texture);
+    void clear_tiles();
     void set_cells_autotile(Array cellPositions, int atlas, int TILE_SIZE, Ref<Texture2D> texture);
-    Vector2 get_autotile_variant(Vector2 cellPos, Array cellPositions);
+    Vector2 get_autotile_variant(Vector2 cellPos, const std::unordered_set<Vector2>& position_set);
 };
 
 }

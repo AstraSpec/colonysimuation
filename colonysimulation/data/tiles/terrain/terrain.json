@@ -3,12 +3,12 @@
 	"id": "stone_terrain",
 	"name": "Stone",
 	"type": "terrain",
-	"atlas": [1, 0],
+	"atlas": 1,
   },
   {
 	"id": "dirt_terrain",
 	"name": "Dirt",
 	"type": "terrain",
-	"atlas": [0, 0],
+	"atlas": 0,
   }
 ] 

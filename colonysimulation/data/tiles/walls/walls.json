@@ -3,14 +3,14 @@
 	"id": "stone_wall",
 	"name": "Stone Wall",
 	"type": "wall",
-	"terrain": 0,
+	"atlas": 0,
 	"hardness": 10,
   },
   {
 	"id": "mud_wall",
 	"name": "Mud Wall",
 	"type": "wall",
-	"terrain": 1,
+	"atlas": 1,
 	"hardness": 7,
   }
 ] 

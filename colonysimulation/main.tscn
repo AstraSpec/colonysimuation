@@ -1,11 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=5 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
 [ext_resource type="Script" path="res://src/camera.gd" id="2_qyceu"]
 [ext_resource type="Script" path="res://src/debug_info.gd" id="4_0btfk"]
-[ext_resource type="TileSet" uid="uid://20wamf4kpkjg" path="res://src/tileset/wall_tileset.tres" id="4_dfh5a"]
-[ext_resource type="TileSet" uid="uid://4m3nonvixbry" path="res://src/tileset/terrain_tileset.tres" id="5_inx6f"]
 
 [node name="Main" type="Node2D" node_paths=PackedStringArray("WorldGeneration")]
 script = ExtResource("1_c6mbo")
@@ -14,18 +12,15 @@ WorldGeneration = NodePath("WorldGeneration")
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("2_qyceu")
 
-[node name="WorldGeneration" type="Node2D" parent="." node_paths=PackedStringArray("WallLayer", "TerrainLayer")]
+[node name="WorldGeneration" type="Node2D" parent="." node_paths=PackedStringArray("TerrainLayer", "WallLayer")]
 script = ExtResource("1_rx1eh")
-WallLayer = NodePath("WallLayer")
 TerrainLayer = NodePath("TerrainLayer")
+WallLayer = NodePath("WallLayer")
 
-[node name="TerrainLayer" type="TileMapLayer" parent="WorldGeneration"]
-z_index = -1
-tile_set = ExtResource("5_inx6f")
+[node name="TerrainLayer" type="FastTileMap" parent="WorldGeneration"]
 
-[node name="WallLayer" type="TileMapLayer" parent="WorldGeneration"]
-z_index = -1
-tile_set = ExtResource("4_dfh5a")
+[node name="WallLayer" type="FastTileMap" parent="WorldGeneration"]
+z_index = 1
 
 [node name="UI" type="CanvasLayer" parent="."]
 
