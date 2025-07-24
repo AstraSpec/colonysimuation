@@ -35,9 +35,9 @@ public:
     FastTileMap();
     ~FastTileMap();
 
-    void set_tile(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Texture2D> texture);
-    void clear_tiles();
-    void set_cells_autotile(Array cellPositions, int atlas, int TILE_SIZE, Ref<Texture2D> texture);
+    void set_cell(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Texture2D> texture, int z_index);
+    void clear_cells();
+    void set_cells_autotile(Array cellPositions, int atlas, int TILE_SIZE, Ref<Texture2D> texture, int z_index);
     Vector2 get_autotile_variant(Vector2 cellPos, const std::unordered_set<Vector2>& position_set);
 };
 

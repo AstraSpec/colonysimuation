@@ -2,6 +2,8 @@
 
 using namespace godot;
 
+static const char* terrain_type[] = {"terrain", "wall", "object"};
+
 const std::unordered_map<int, Vector2> FastTileMap::autotile_variant_map = {
 	{0, Vector2(0, 0)},
 	{2, Vector2(0, 3)},
@@ -53,9 +55,9 @@ const std::unordered_map<int, Vector2> FastTileMap::autotile_variant_map = {
 };
 
 void FastTileMap::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_tile", "cellPos", "atlas", "TILE_SIZE", "texture"), &FastTileMap::set_tile);
-	ClassDB::bind_method(D_METHOD("clear_tiles"), &FastTileMap::clear_tiles);
-	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "tile", "TILE_SIZE", "texture"), &FastTileMap::set_cells_autotile);
+	ClassDB::bind_method(D_METHOD("set_cell", "cellPos", "atlas", "TILE_SIZE", "texture", "z_index"), &FastTileMap::set_cell);
+	ClassDB::bind_method(D_METHOD("clear_cells"), &FastTileMap::clear_cells);
+	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "tile", "TILE_SIZE", "texture", "z_index"), &FastTileMap::set_cells_autotile);
 }
 
 FastTileMap::FastTileMap() {
@@ -64,7 +66,7 @@ FastTileMap::FastTileMap() {
 FastTileMap::~FastTileMap() {
 }
 
-void FastTileMap::set_tile(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Texture2D> texture) {
+void FastTileMap::set_cell(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Texture2D> texture, int z_index) {
 	Vector2 tilePos = cellPos * TILE_SIZE;
 	
 	RID tileRID = RenderingServer::get_singleton()->canvas_item_create();
@@ -74,11 +76,12 @@ void FastTileMap::set_tile(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Te
 	Rect2 dst_rect(tilePos.x, tilePos.y, TILE_SIZE, TILE_SIZE);
 	
 	RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(tileRID, dst_rect, texture->get_rid(), src_rect);
+	RenderingServer::get_singleton()->canvas_item_set_z_index(tileRID, z_index);
 	
 	tileRIDs[cellPos] = tileRID;
 }
 
-void FastTileMap::clear_tiles() {
+void FastTileMap::clear_cells() {
     Array keys = tileRIDs.keys();
     for (int i = 0; i < keys.size(); i++) {
 		RID rid = tileRIDs[keys[i]];
@@ -87,7 +90,7 @@ void FastTileMap::clear_tiles() {
     tileRIDs.clear();
 }
 
-void FastTileMap::set_cells_autotile(Array cellPositions, int atlas, int TILE_SIZE, Ref<Texture2D> texture) {
+void FastTileMap::set_cells_autotile(Array cellPositions, int atlas, int TILE_SIZE, Ref<Texture2D> texture, int z_index) {
     std::unordered_set<Vector2> position_set;
     position_set.reserve(cellPositions.size());
     for (int i = 0; i < cellPositions.size(); i++) {
@@ -107,6 +110,7 @@ void FastTileMap::set_cells_autotile(Array cellPositions, int atlas, int TILE_SI
         Rect2 dst_rect(tilePos.x, tilePos.y, TILE_SIZE, TILE_SIZE);
         
         RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(tileRID, dst_rect, texture->get_rid(), src_rect);
+        RenderingServer::get_singleton()->canvas_item_set_z_index(tileRID, z_index);
         
         tileRIDs[cellPos] = tileRID;
     }
