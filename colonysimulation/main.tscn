@@ -10,6 +10,7 @@ script = ExtResource("1_c6mbo")
 WorldGeneration = NodePath("WorldGeneration")
 
 [node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
 [node name="WorldGeneration" type="Node2D" parent="." node_paths=PackedStringArray("TerrainLayer", "WallLayer")]
