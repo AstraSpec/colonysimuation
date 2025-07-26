@@ -3,9 +3,9 @@ extends Camera2D
 const DRAG_SPEED :float = 1.75
 const MOVE_SPEED :float = 1000.0
 
-const ZOOM_LEVELS :Array = [0.25, 0.33, 0.5, 0.66, 1.0, 2.0]
+const ZOOM_LEVELS :Array = [0.15, 0.25, 0.33, 0.5, 0.66, 1.0, 2.0]
 
-var zoomLevel :int = 2
+var zoomLevel :int = 3
 var scrolled :bool = false
 var dir :Vector2
 
@@ -27,7 +27,6 @@ func change_zoom(amount :int) -> void:
 	zoom = Vector2(ZOOM_LEVELS[zoomLevel], ZOOM_LEVELS[zoomLevel])
 	
 	scrolled = true
-	print(ZOOM_LEVELS[zoomLevel])
 
 func _process(delta :float) -> void:
 	scrolled = false

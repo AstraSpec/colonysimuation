@@ -27,17 +27,19 @@ protected:
 	static void _bind_methods();
     
     private:
+    static constexpr int TILE_SIZE = 16;
     static constexpr int ATLAS_SIZE = 4;
     static const std::unordered_map<int, Vector2> autotile_variant_map;
-	Dictionary tileRIDs;
+    Dictionary tileRIDs;
 
 public:
     FastTileMap();
     ~FastTileMap();
 
-    void set_cell(Vector2 cellPos, Vector2 atlas, int TILE_SIZE, Ref<Texture2D> texture, int z_index);
+    void set_cell(Vector2 cellPos, Vector2 atlas, Ref<Texture2D> texture, int z_index, const Vector2 offset = Vector2(0, 0), const Vector2 size = Vector2(1, 1));
+    void set_cells(Array cellPositions, Dictionary config);
     void clear_cells();
-    void set_cells_autotile(Array cellPositions, int atlas, int TILE_SIZE, Ref<Texture2D> texture, int z_index);
+    void set_cells_autotile(Array cellPositions, Dictionary config);
     Vector2 get_autotile_variant(Vector2 cellPos, const std::unordered_set<Vector2>& position_set);
 };
 

@@ -1,0 +1,11 @@
+[
+  {
+	"id": "tree",
+	"name": "tree",
+	"type": "object",
+	"atlas": [0, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  }
+] 

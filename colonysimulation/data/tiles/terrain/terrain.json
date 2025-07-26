@@ -3,12 +3,16 @@
 	"id": "stone_terrain",
 	"name": "Stone",
 	"type": "terrain",
-	"atlas": 1,
+	"atlas": [3, 0],
+	"size": [3, 3],
+	"texture": "terrain.png"
   },
   {
 	"id": "dirt_terrain",
 	"name": "Dirt",
 	"type": "terrain",
-	"atlas": 0,
+	"atlas": [0, 0],
+	"size": [3, 3],
+	"texture": "terrain.png"
   }
 ] 
