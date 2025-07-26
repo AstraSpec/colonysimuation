@@ -75,7 +75,7 @@ void FastTileMap::set_cell(Vector2 cellPos, Vector2 atlas, Ref<Texture2D> textur
 	Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
 
 	RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(tileRID, dst_rect, texture->get_rid(), src_rect);
-	RenderingServer::get_singleton()->canvas_item_set_z_index(tileRID, z_index);
+	RenderingServer::get_singleton()->canvas_item_set_z_index(tileRID, cellPos.y + offset.y + z_index);
 
 	tileRIDs[cellPos] = tileRID;
 }

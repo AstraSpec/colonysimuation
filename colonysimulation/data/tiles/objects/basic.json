@@ -1,9 +1,43 @@
 [
   {
-	"id": "tree",
+	"id": "tree1",
 	"name": "tree",
 	"type": "object",
 	"atlas": [0, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "tree2",
+	"name": "tree",
+	"type": "object",
+	"atlas": [1, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "tree3",
+	"name": "tree",
+	"type": "object",
+	"atlas": [2, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "grass",
+	"name": "grass",
+	"type": "object",
+	"atlas": [5, 1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "tall_grass",
+	"name": "grass",
+	"type": "object",
+	"atlas": [6, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png"
