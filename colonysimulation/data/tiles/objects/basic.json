@@ -29,9 +29,9 @@
   {
 	"id": "grass",
 	"name": "grass",
-	"type": "object",
-	"atlas": [5, 1],
-	"texture": "objects.png"
+	"type": "floor",
+	"atlas": [0, 0],
+	"texture": "grass.png"
   },
   {
 	"id": "tall_grass",

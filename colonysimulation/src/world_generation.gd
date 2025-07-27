@@ -3,6 +3,7 @@ extends Node2D
 @onready var MapNoise :FastNoiseLite = preload("res://assets/noise/map.tres")
 @onready var TreeNoise :FastNoiseLite = preload("res://assets/noise/trees.tres")
 @onready var GrassNoise :FastNoiseLite = preload("res://assets/noise/grass.tres")
+@onready var TallGrassNoise :FastNoiseLite = preload("res://assets/noise/tall_grass.tres")
 @onready var WallNoise :FastNoiseLite = preload("res://assets/noise/walls.tres")
 
 @export var Tilemap :FastTileMap
@@ -15,6 +16,7 @@ func generate_world() -> void:
 	
 	var terrainPos :Dictionary = {}
 	var autotilePos :Dictionary = {}
+	var grassPos :Dictionary = {}
 	
 	var dirtTerrain :Dictionary = TilesDb.get_config("stone_terrain")
 	var stoneWall :Dictionary = TilesDb.get_config("stone_wall")
@@ -32,10 +34,10 @@ func generate_world() -> void:
 	terrainPos[tree1] = []
 	terrainPos[tree2] = []
 	terrainPos[tree3] = []
-	terrainPos[grass] = []
 	terrainPos[tallGrass] = []
 	autotilePos[stoneWall] = []
 	autotilePos[mudWall] = []
+	grassPos[grass] = []
 	
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
@@ -48,24 +50,24 @@ func generate_world() -> void:
 				autotilePos[stoneWall].append(cellPos)
 			else:
 				autotilePos[mudWall].append(cellPos)
-		
-		elif TreeNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.25:
-			if randf() > 0.33: terrainPos[tree1].append(cellPos)
-			elif randf() > 0.5: terrainPos[tree2].append(cellPos)
-			else: terrainPos[tree3].append(cellPos)
-		
-		elif GrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.1:
-			if GrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.25:
+		else:
+			if TreeNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.25:
+				if randf() > 0.33: terrainPos[tree1].append(cellPos)
+				elif randf() > 0.5: terrainPos[tree2].append(cellPos)
+				else: terrainPos[tree3].append(cellPos)
+			
+			if GrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.4:
+				grassPos[grass].append(cellPos)
+			
+			if TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.6:
 				terrainPos[tallGrass].append(cellPos)
-			else:
-				terrainPos[grass].append(cellPos)
 	
 	for t in terrainPos:
 		Tilemap.set_cells(terrainPos[t], t)
 	
 	var totalPos :Array = []
-	for t in autotilePos:
-		totalPos.append_array(autotilePos[t])
+	for t in autotilePos: totalPos.append_array(autotilePos[t])
+	for t in autotilePos: Tilemap.set_cells_autotile(autotilePos[t], t, totalPos)
 	
-	for t in autotilePos:
-		Tilemap.set_cells_autotile(autotilePos[t], t, totalPos)
+	for t in grassPos:
+		Tilemap.set_cells_autotile(grassPos[t], t, grassPos[t])

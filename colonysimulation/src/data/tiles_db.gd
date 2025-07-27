@@ -1,6 +1,6 @@
 extends DbManager
 
-const Z_INDEX_TYPE :Dictionary = {"terrain":0, "wall":1, "object":2}
+const Z_INDEX_TYPE :Dictionary = {"terrain":0, "floor":1, "wall":2, "object":3}
 var textures :Dictionary = {}
 
 func _init() -> void:
