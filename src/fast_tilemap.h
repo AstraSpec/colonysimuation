@@ -39,7 +39,7 @@ public:
     void set_cell(Vector2 cellPos, Vector2 atlas, Ref<Texture2D> texture, int z_index, const Vector2 offset = Vector2(0, 0), const Vector2 size = Vector2(1, 1));
     void set_cells(Array cellPositions, Dictionary config);
     void clear_cells();
-    void set_cells_autotile(Array cellPositions, Dictionary config);
+    void set_cells_autotile(Array cellPositions, Dictionary config, Array totalPos);
     Vector2 get_autotile_variant(Vector2 cellPos, const std::unordered_set<Vector2>& position_set);
 };
 

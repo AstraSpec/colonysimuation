@@ -56,7 +56,7 @@ void FastTileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_cell", "cellPos", "atlas", "texture", "z_index", "offset", "size"), &FastTileMap::set_cell, DEFVAL(Vector2(0, 0)), DEFVAL(Vector2(1, 1)));
 	ClassDB::bind_method(D_METHOD("set_cells", "cellPositions", "config"), &FastTileMap::set_cells);
 	ClassDB::bind_method(D_METHOD("clear_cells"), &FastTileMap::clear_cells);
-	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "config"), &FastTileMap::set_cells_autotile);
+	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "config", "totalPos"), &FastTileMap::set_cells_autotile);
 }
 
 FastTileMap::FastTileMap() {
@@ -102,7 +102,7 @@ void FastTileMap::clear_cells() {
     tileRIDs.clear();
 }
 
-void FastTileMap::set_cells_autotile(Array cellPositions, Dictionary config) {
+void FastTileMap::set_cells_autotile(Array cellPositions, Dictionary config, Array totalPos) {
     Vector2 atlas = config["atlas"];
     Ref<Texture2D> texture = config["texture"];
     int z_index = config["z_index"];
@@ -110,9 +110,9 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Dictionary config) {
     Vector2 size = config["size"];
     
     std::unordered_set<Vector2> position_set;
-    position_set.reserve(cellPositions.size());
-    for (int i = 0; i < cellPositions.size(); i++) {
-        position_set.insert(cellPositions[i]);
+    position_set.reserve(totalPos.size());
+    for (int i = 0; i < totalPos.size(); i++) {
+        position_set.insert(totalPos[i]);
     }
 
     for (int i = 0; i < cellPositions.size(); i++) {
