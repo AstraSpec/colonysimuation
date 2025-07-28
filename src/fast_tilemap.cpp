@@ -57,6 +57,7 @@ void FastTileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_cells", "cellPositions", "config"), &FastTileMap::set_cells);
 	ClassDB::bind_method(D_METHOD("clear_cells"), &FastTileMap::clear_cells);
 	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "config", "totalPos"), &FastTileMap::set_cells_autotile);
+	ClassDB::bind_method(D_METHOD("set_terrain_cells", "cellPositions", "config"), &FastTileMap::set_terrain_cells);
 }
 
 FastTileMap::FastTileMap() {
@@ -120,6 +121,20 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Dictionary config, Arr
         Vector2 variant = get_autotile_variant(cellPos, position_set) + atlas;
         set_cell(cellPos, variant, texture, z_index);
     }
+}
+
+void FastTileMap::set_terrain_cells(Array cellPositions, Dictionary config) {
+	Vector2 base_atlas = config["atlas"];
+	Ref<Texture2D> texture = config["texture"];
+	int z_index = config["z_index"];
+	Vector2 offset = config["offset"];
+	Vector2 size = config["size"];
+	
+	for (int i = 0; i < cellPositions.size(); i++) {
+		Vector2i cellPos = cellPositions[i];
+		Vector2i atlas = base_atlas + Vector2i(cellPos.x % 3, cellPos.y % 3);
+		set_cell(cellPos, atlas, texture, z_index, offset, size);
+	}
 }
 
 Vector2 FastTileMap::get_autotile_variant(Vector2 cellPos, const std::unordered_set<Vector2>& position_set) {

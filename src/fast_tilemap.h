@@ -40,6 +40,7 @@ public:
     void set_cells(Array cellPositions, Dictionary config);
     void clear_cells();
     void set_cells_autotile(Array cellPositions, Dictionary config, Array totalPos);
+    void set_terrain_cells(Array cellPositions, Dictionary config);
     Vector2 get_autotile_variant(Vector2 cellPos, const std::unordered_set<Vector2>& position_set);
 };
 

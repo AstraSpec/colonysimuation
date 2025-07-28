@@ -14,11 +14,13 @@ const TILE_SIZE :int = 16
 func generate_world() -> void:
 	Tilemap.clear_cells()
 	
-	var terrainPos :Dictionary = {}
+	var tilePos :Dictionary = {}
 	var autotilePos :Dictionary = {}
 	var grassPos :Dictionary = {}
+	var terrainPos :Dictionary = {}
 	
-	var dirtTerrain :Dictionary = TilesDb.get_config("stone_terrain")
+	var dirtTerrain :Dictionary = TilesDb.get_config("dirt_terrain")
+	var stoneTerrain :Dictionary = TilesDb.get_config("stone_terrain")
 	var stoneWall :Dictionary = TilesDb.get_config("stone_wall")
 	var mudWall :Dictionary = TilesDb.get_config("mud_wall")
 	var tree1 :Dictionary = TilesDb.get_config("tree1")
@@ -32,15 +34,16 @@ func generate_world() -> void:
 	
 	# Initialize arrays for each tile type
 	terrainPos[dirtTerrain] = []
-	terrainPos[stoneWall] = []
-	terrainPos[mudWall] = []
-	terrainPos[tree1] = []
-	terrainPos[tree2] = []
-	terrainPos[tree3] = []
-	terrainPos[tallGrass1] = []
-	terrainPos[tallGrass2] = []
-	terrainPos[tallGrass3] = []
-	terrainPos[tallGrass4] = []
+	terrainPos[stoneTerrain] = []
+	tilePos[stoneWall] = []
+	tilePos[mudWall] = []
+	tilePos[tree1] = []
+	tilePos[tree2] = []
+	tilePos[tree3] = []
+	tilePos[tallGrass1] = []
+	tilePos[tallGrass2] = []
+	tilePos[tallGrass3] = []
+	tilePos[tallGrass4] = []
 	autotilePos[stoneWall] = []
 	autotilePos[mudWall] = []
 	grassPos[grass] = []
@@ -48,8 +51,15 @@ func generate_world() -> void:
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
 		
-		if cellPos.x % 3 == 0 and cellPos.y % 3 == 0:
+		if MapNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.27:
+			if WallNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.0:
+				terrainPos[stoneTerrain].append(cellPos)
+			else:
+				terrainPos[dirtTerrain].append(cellPos)
+		else:
 			terrainPos[dirtTerrain].append(cellPos)
+			#else:
+			#	autotilePos[mudTerrain].append(cellPos)
 		
 		if MapNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.3:
 			if WallNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.0:
@@ -57,32 +67,31 @@ func generate_world() -> void:
 			else:
 				autotilePos[mudWall].append(cellPos)
 		else:
-			if TreeNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.25:
-				if randf() > 0.33: terrainPos[tree1].append(cellPos)
-				elif randf() > 0.5: terrainPos[tree2].append(cellPos)
-				else: terrainPos[tree3].append(cellPos)
-			
 			if GrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.4:
 				grassPos[grass].append(cellPos)
 			
-			if TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.555:
+			if TreeNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.25:
+				if randf() > 0.33: tilePos[tree1].append(cellPos)
+				elif randf() > 0.5: tilePos[tree2].append(cellPos)
+				else: tilePos[tree3].append(cellPos)
+			
+			elif TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.555:
 				if randf() > 0.05:
-					terrainPos[tallGrass2].append(cellPos)
+					tilePos[tallGrass2].append(cellPos)
 				else:
 					if randf() > 0.5:
-						terrainPos[tallGrass3].append(cellPos)
+						tilePos[tallGrass3].append(cellPos)
 					else:
-						terrainPos[tallGrass4].append(cellPos)
+						tilePos[tallGrass4].append(cellPos)
 			elif TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.45:
-				terrainPos[tallGrass1].append(cellPos)
-			
-	
-	for t in terrainPos:
-		Tilemap.set_cells(terrainPos[t], t)
+				tilePos[tallGrass1].append(cellPos)
+				
+	for t in tilePos: Tilemap.set_cells(tilePos[t], t)
+	for t in terrainPos: Tilemap.set_terrain_cells(terrainPos[t], t)
 	
 	var totalPos :Array = []
 	for t in autotilePos: totalPos.append_array(autotilePos[t])
 	for t in autotilePos: Tilemap.set_cells_autotile(autotilePos[t], t, totalPos)
+	for t in grassPos: Tilemap.set_cells_autotile(grassPos[t], t, grassPos[t])
 	
-	for t in grassPos:
-		Tilemap.set_cells_autotile(grassPos[t], t, grassPos[t])
+	
