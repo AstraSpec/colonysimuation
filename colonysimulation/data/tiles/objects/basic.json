@@ -34,10 +34,37 @@
 	"texture": "grass.png"
   },
   {
-	"id": "tall_grass",
+	"id": "tall_grass1",
+	"name": "grass",
+	"type": "object",
+	"atlas": [5, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "tall_grass2",
 	"name": "grass",
 	"type": "object",
 	"atlas": [6, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "tall_grass3",
+	"name": "grass",
+	"type": "object",
+	"atlas": [4, 0],
+	"size": [1, 2],
+	"offset": [0, -1],
+	"texture": "objects.png"
+  },
+  {
+	"id": "tall_grass4",
+	"name": "grass",
+	"type": "object",
+	"atlas": [3, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png"
