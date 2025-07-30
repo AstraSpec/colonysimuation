@@ -30,14 +30,6 @@
 	"flags": ["WORLDSPAWN"]
   },
   {
-	"id": "grass",
-	"name": "grass",
-	"type": "floor",
-	"atlas": [0, 0],
-	"texture": "grass.png",
-	"flags": ["WORLDSPAWN"]
-  },
-  {
 	"id": "tall_grass1",
 	"name": "grass",
 	"type": "object",

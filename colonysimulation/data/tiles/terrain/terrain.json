@@ -16,5 +16,13 @@
 	"size": [1, 1],
 	"texture": "terrain.png",
 	"flags": ["WORLDSPAWN"]
-  }
+  },
+  {
+	"id": "grass",
+	"name": "grass",
+	"type": "floor",
+	"atlas": [0, 0],
+	"texture": "grass.png",
+	"flags": ["WORLDSPAWN"]
+  },
 ] 
