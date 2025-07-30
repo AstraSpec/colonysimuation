@@ -50,7 +50,7 @@
 	"flags": ["WORLDSPAWN"]
   },
   {
-	"id": "tall_grass3",
+	"id": "flower1",
 	"name": "grass",
 	"type": "object",
 	"atlas": [4, 0],
@@ -60,7 +60,7 @@
 	"flags": ["WORLDSPAWN"]
   },
   {
-	"id": "tall_grass4",
+	"id": "flower2",
 	"name": "grass",
 	"type": "object",
 	"atlas": [3, 0],
