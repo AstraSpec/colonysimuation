@@ -30,16 +30,16 @@ func get_config(id :String) -> Dictionary:
 	var element :Dictionary = get_data(id)
 	
 	return {
-		"atlas": TilesDb.get_vector2(element, "atlas", Vector2.ZERO),
+		"atlas": TilesDb.get_vector2(element, "atlas", Vector2i.ZERO),
 		"texture": TilesDb.get_texture(element),
 		"z_index": TilesDb.get_z_index(element),
-		"offset": TilesDb.get_vector2(element, "offset", Vector2.ZERO),
-		"size": TilesDb.get_vector2(element, "size", Vector2.ONE)
+		"offset": TilesDb.get_vector2(element, "offset", Vector2i.ZERO),
+		"size": TilesDb.get_vector2(element, "size", Vector2i.ONE)
 	}
 
-func get_vector2(element :Dictionary, key :String, defVal :Vector2) -> Vector2:
+func get_vector2(element :Dictionary, key :String, defVal :Vector2i) -> Vector2i:
 	if element.has(key):
-		return Vector2(element[key][0], element[key][1])
+		return Vector2i(element[key][0], element[key][1])
 	return defVal
 
 func get_texture(element :Dictionary) -> CompressedTexture2D:

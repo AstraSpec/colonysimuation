@@ -23,26 +23,25 @@ func generate_world() -> void:
 	Tilemap.clear_cells()
 	
 	var tilePos :Dictionary = TilesDb.get_worldspawn_tiles()
-	var terrainPos :Dictionary = tilePos["terrain"]
-	var floorPos :Dictionary = tilePos["floor"]
-	var wallPos :Dictionary = tilePos["wall"]
-	var objectPos :Dictionary = tilePos["object"]
 	
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
 		process_tile(cellPos, tilePos)
 	
+	var terrainPos :Dictionary = tilePos["terrain"]
+	var floorPos :Dictionary = tilePos["floor"]
+	var wallPos :Dictionary = tilePos["wall"]
+	var objectPos :Dictionary = tilePos["object"]
+	
 	for tile in terrainPos: Tilemap.set_terrain_cells(terrainPos[tile], TilesDb.get_config(tile))
-	for tile in floorPos:
-		Tilemap.set_cells_autotile(floorPos[tile], TilesDb.get_config(tile), floorPos[tile])
-	for tile in objectPos: 
-		Tilemap.set_cells(objectPos[tile], TilesDb.get_config(tile))
+	for tile in floorPos: Tilemap.set_cells_autotile(floorPos[tile], TilesDb.get_config(tile), floorPos[tile])
+	for tile in objectPos: Tilemap.set_cells(objectPos[tile], TilesDb.get_config(tile))
 	
 	var totalPos :Array = []
 	for tile in wallPos: totalPos.append_array(wallPos[tile])
 	for tile in wallPos: Tilemap.set_cells_autotile(wallPos[tile], TilesDb.get_config(tile), totalPos)
 	
-func process_tile(cellPos :Vector2, tilePos :Dictionary) -> void:
+func process_tile(cellPos :Vector2i, tilePos :Dictionary) -> void:
 	var noise :Dictionary = {
 		"elevation": ElevationNoise.get_noise_2d(cellPos.x, cellPos.y),
 		"geology": GeologyNoise.get_noise_2d(cellPos.x, cellPos.y),
@@ -58,27 +57,27 @@ func process_tile(cellPos :Vector2, tilePos :Dictionary) -> void:
 		process_floor(cellPos, tilePos["floor"], noise)
 		process_object(cellPos, tilePos["object"], noise)
 
-func process_terrain(cellPos :Vector2, terrainPos :Dictionary, noise :Dictionary) -> void:
+func process_terrain(cellPos :Vector2i, terrainPos :Dictionary, noise :Dictionary) -> void:
 	if noise.elevation > TERRAIN_THRESHOLD && noise.geology > 0.0:
 		terrainPos["stone_terrain"].append(cellPos)
 	else:
 		terrainPos["dirt_terrain"].append(cellPos)
 
-func process_wall(cellPos :Vector2, wallPos :Dictionary, noise :Dictionary) -> void:
+func process_wall(cellPos :Vector2i, wallPos :Dictionary, noise :Dictionary) -> void:
 	if noise.elevation > CLIFF_THRESHOLD:
 		var type :String = "stone_wall" if noise.geology > 0.0 else "mud_wall"
 		wallPos[type].append(cellPos)
 
-func process_floor(cellPos :Vector2, floorPos :Dictionary, noise :Dictionary) -> void:
+func process_floor(cellPos :Vector2i, floorPos :Dictionary, noise :Dictionary) -> void:
 	if noise.grass > GRASS_THRESHOLD:
 		floorPos["grass"].append(cellPos)
 
-func process_object(cellPos :Vector2, objectPos :Dictionary, noise :Dictionary) -> void:
-	var vegetation :String = get_vegetation(cellPos, objectPos, noise)
+func process_object(cellPos :Vector2i, objectPos :Dictionary, noise :Dictionary) -> void:
+	var vegetation :String = get_vegetation(noise)
 	if vegetation != "":
 		objectPos[vegetation].append(cellPos)
 
-func get_vegetation(cellPos :Vector2, objectPos :Dictionary, noise :Dictionary) -> String:
+func get_vegetation(noise :Dictionary) -> String:
 	if noise.tree > TREE_THRESHOLD:
 		var trees :Array = ["tree1", "tree2", "tree3"]
 		trees.shuffle()
