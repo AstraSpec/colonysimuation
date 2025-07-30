@@ -5,7 +5,8 @@
 	"type": "wall",
 	"atlas": [0, 0],
 	"hardness": 10,
-	"texture": "walls.png"
+	"texture": "walls.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "mud_wall",
@@ -13,6 +14,7 @@
 	"type": "wall",
 	"atlas": [0, 4],
 	"hardness": 7,
-	"texture": "walls.png"
+	"texture": "walls.png",
+	"flags": ["WORLDSPAWN"]
   }
 ] 

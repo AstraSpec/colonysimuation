@@ -6,7 +6,8 @@
 	"atlas": [0, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "tree2",
@@ -15,7 +16,8 @@
 	"atlas": [1, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "tree3",
@@ -24,14 +26,16 @@
 	"atlas": [2, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "grass",
 	"name": "grass",
 	"type": "floor",
 	"atlas": [0, 0],
-	"texture": "grass.png"
+	"texture": "grass.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "tall_grass1",
@@ -40,7 +44,8 @@
 	"atlas": [5, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "tall_grass2",
@@ -49,7 +54,8 @@
 	"atlas": [6, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "tall_grass3",
@@ -58,7 +64,8 @@
 	"atlas": [4, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   },
   {
 	"id": "tall_grass4",
@@ -67,6 +74,7 @@
 	"atlas": [3, 0],
 	"size": [1, 2],
 	"offset": [0, -1],
-	"texture": "objects.png"
+	"texture": "objects.png",
+	"flags": ["WORLDSPAWN"]
   }
 ] 

@@ -14,84 +14,60 @@ const TILE_SIZE :int = 16
 func generate_world() -> void:
 	Tilemap.clear_cells()
 	
-	var tilePos :Dictionary = {}
-	var autotilePos :Dictionary = {}
-	var grassPos :Dictionary = {}
-	var terrainPos :Dictionary = {}
-	
-	var dirtTerrain :Dictionary = TilesDb.get_config("dirt_terrain")
-	var stoneTerrain :Dictionary = TilesDb.get_config("stone_terrain")
-	var stoneWall :Dictionary = TilesDb.get_config("stone_wall")
-	var mudWall :Dictionary = TilesDb.get_config("mud_wall")
-	var tree1 :Dictionary = TilesDb.get_config("tree1")
-	var tree2 :Dictionary = TilesDb.get_config("tree2")
-	var tree3 :Dictionary = TilesDb.get_config("tree3")
-	var grass :Dictionary = TilesDb.get_config("grass")
-	var tallGrass1 :Dictionary = TilesDb.get_config("tall_grass1")
-	var tallGrass2 :Dictionary = TilesDb.get_config("tall_grass2")
-	var tallGrass3 :Dictionary = TilesDb.get_config("tall_grass3")
-	var tallGrass4 :Dictionary = TilesDb.get_config("tall_grass4")
-	
-	# Initialize arrays for each tile type
-	terrainPos[dirtTerrain] = []
-	terrainPos[stoneTerrain] = []
-	tilePos[stoneWall] = []
-	tilePos[mudWall] = []
-	tilePos[tree1] = []
-	tilePos[tree2] = []
-	tilePos[tree3] = []
-	tilePos[tallGrass1] = []
-	tilePos[tallGrass2] = []
-	tilePos[tallGrass3] = []
-	tilePos[tallGrass4] = []
-	autotilePos[stoneWall] = []
-	autotilePos[mudWall] = []
-	grassPos[grass] = []
+	var tilePos :Dictionary = TilesDb.get_worldspawn_tiles()
+	var terrainPos :Dictionary = tilePos["terrain"]
+	var floorPos :Dictionary = tilePos["floor"]
+	var wallPos :Dictionary = tilePos["wall"]
+	var objectPos :Dictionary = tilePos["object"]
 	
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
 		
+		var map_noise = MapNoise.get_noise_2d(cellPos.x, cellPos.y)
+		var wall_noise = WallNoise.get_noise_2d(cellPos.x, cellPos.y)
+		var grass_noise = GrassNoise.get_noise_2d(cellPos.x, cellPos.y)
+		var tree_noise = TreeNoise.get_noise_2d(cellPos.x, cellPos.y)
+		var tall_grass_noise = TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y)
+		
 		if MapNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.27:
 			if WallNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.0:
-				terrainPos[stoneTerrain].append(cellPos)
+				terrainPos["stone_terrain"].append(cellPos)
 			else:
-				terrainPos[dirtTerrain].append(cellPos)
+				terrainPos["dirt_terrain"].append(cellPos)
 		else:
-			terrainPos[dirtTerrain].append(cellPos)
-			#else:
-			#	autotilePos[mudTerrain].append(cellPos)
+			terrainPos["dirt_terrain"].append(cellPos)
 		
 		if MapNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.3:
 			if WallNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.0:
-				autotilePos[stoneWall].append(cellPos)
+				wallPos["stone_wall"].append(cellPos)
 			else:
-				autotilePos[mudWall].append(cellPos)
+				wallPos["mud_wall"].append(cellPos)
 		else:
 			if GrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.4:
-				grassPos[grass].append(cellPos)
+				floorPos["grass"].append(cellPos)
 			
 			if TreeNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.25:
-				if randf() > 0.33: tilePos[tree1].append(cellPos)
-				elif randf() > 0.5: tilePos[tree2].append(cellPos)
-				else: tilePos[tree3].append(cellPos)
+				if randf() > 0.33: objectPos["tree1"].append(cellPos)
+				elif randf() > 0.5: objectPos["tree2"].append(cellPos)
+				else: objectPos["tree3"].append(cellPos)
 			
 			elif TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.555:
 				if randf() > 0.05:
-					tilePos[tallGrass2].append(cellPos)
+					objectPos["tall_grass2"].append(cellPos)
 				else:
 					if randf() > 0.5:
-						tilePos[tallGrass3].append(cellPos)
+						objectPos["tall_grass3"].append(cellPos)
 					else:
-						tilePos[tallGrass4].append(cellPos)
+						objectPos["tall_grass4"].append(cellPos)
 			elif TallGrassNoise.get_noise_2d(cellPos.x, cellPos.y) > 0.45:
-				tilePos[tallGrass1].append(cellPos)
-				
-	for t in tilePos: Tilemap.set_cells(tilePos[t], t)
-	for t in terrainPos: Tilemap.set_terrain_cells(terrainPos[t], t)
+				objectPos["tall_grass1"].append(cellPos)
+	
+	for tile in terrainPos: Tilemap.set_terrain_cells(terrainPos[tile], TilesDb.get_config(tile))
+	for tile in floorPos: Tilemap.set_cells_autotile(floorPos[tile], TilesDb.get_config(tile), floorPos[tile])
+	for tile in objectPos: Tilemap.set_cells(objectPos[tile], TilesDb.get_config(tile))
 	
 	var totalPos :Array = []
-	for t in autotilePos: totalPos.append_array(autotilePos[t])
-	for t in autotilePos: Tilemap.set_cells_autotile(autotilePos[t], t, totalPos)
-	for t in grassPos: Tilemap.set_cells_autotile(grassPos[t], t, grassPos[t])
+	for tile in wallPos: totalPos.append_array(wallPos[tile])
+	for tile in wallPos: Tilemap.set_cells_autotile(wallPos[tile], TilesDb.get_config(tile), totalPos)
 	
 	

@@ -13,6 +13,19 @@ func _init_textures() -> void:
 		if dataTexture:
 			textures[dataTexture] = load("res://assets/tiles/" + dataTexture)
 
+func get_worldspawn_tiles() -> Dictionary:
+	var worldspawnTiles :Dictionary = {}
+	
+	for type in Z_INDEX_TYPE:
+		worldspawnTiles[type] = {}
+	
+	for element :Dictionary in data:
+		var flags = element.get("flags")
+		if flags and flags.has("WORLDSPAWN"):
+			worldspawnTiles[element["type"]][element["id"]] = []
+	
+	return worldspawnTiles
+
 func get_config(id :String) -> Dictionary:
 	var element :Dictionary = get_data(id)
 	
