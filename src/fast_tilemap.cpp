@@ -54,10 +54,10 @@ const std::unordered_map<int, Vector2i> FastTileMap::autotile_variant_map = {
 
 void FastTileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_cell", "cellPos", "atlas", "texture", "z_index", "offset", "size"), &FastTileMap::set_cell, DEFVAL(Vector2i(0, 0)), DEFVAL(Vector2i(1, 1)));
-	ClassDB::bind_method(D_METHOD("set_cells", "cellPositions", "config"), &FastTileMap::set_cells);
+	ClassDB::bind_method(D_METHOD("set_cells", "cellPositions", "tileData"), &FastTileMap::set_cells);
 	ClassDB::bind_method(D_METHOD("clear_cells"), &FastTileMap::clear_cells);
-	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "config", "totalPos"), &FastTileMap::set_cells_autotile);
-	ClassDB::bind_method(D_METHOD("set_terrain_cells", "cellPositions", "config"), &FastTileMap::set_terrain_cells);
+	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "tileData", "totalPos"), &FastTileMap::set_cells_autotile);
+	ClassDB::bind_method(D_METHOD("set_terrain_cells", "cellPositions", "tileData"), &FastTileMap::set_terrain_cells);
 }
 
 FastTileMap::FastTileMap() {
@@ -81,12 +81,12 @@ void FastTileMap::set_cell(Vector2i cellPos, Vector2i atlas, Ref<Texture2D> text
 	tileRIDs[cellPos] = tileRID;
 }
 
-void FastTileMap::set_cells(Array cellPositions, Dictionary config) {
-	Vector2i atlas = config["atlas"];
-	Ref<Texture2D> texture = config["texture"];
-	int z_index = config["z_index"];
-	Vector2i offset = config["offset"];
-	Vector2i size = config["size"];
+void FastTileMap::set_cells(Array cellPositions, Object* tileData) {
+	Vector2i atlas = tileData->get("atlas");
+	Ref<Texture2D> texture = tileData->get("texture");
+	int z_index = tileData->get("z_index");
+	Vector2i offset = tileData->get("offset");
+	Vector2i size = tileData->get("size");
 	
 	for (int i = 0; i < cellPositions.size(); i++) {
 		Vector2i cellPos = cellPositions[i];
@@ -103,12 +103,12 @@ void FastTileMap::clear_cells() {
     tileRIDs.clear();
 }
 
-void FastTileMap::set_cells_autotile(Array cellPositions, Dictionary config, Array totalPos) {
-    Vector2i atlas = config["atlas"];
-    Ref<Texture2D> texture = config["texture"];
-    int z_index = config["z_index"];
-    Vector2i offset = config["offset"];
-    Vector2i size = config["size"];
+void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos) {
+    Vector2i atlas = tileData->get("atlas");
+    Ref<Texture2D> texture = tileData->get("texture");
+    int z_index = tileData->get("z_index");
+    Vector2i offset = tileData->get("offset");
+    Vector2i size = tileData->get("size");
     
     std::unordered_set<Vector2i> position_set;
     position_set.reserve(totalPos.size());
@@ -123,12 +123,12 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Dictionary config, Arr
     }
 }
 
-void FastTileMap::set_terrain_cells(Array cellPositions, Dictionary config) {
-	Vector2i base_atlas = config["atlas"];
-	Ref<Texture2D> texture = config["texture"];
-	int z_index = config["z_index"];
-	Vector2i offset = config["offset"];
-	Vector2i size = config["size"];
+void FastTileMap::set_terrain_cells(Array cellPositions, Object* tileData) {
+	Vector2i base_atlas = tileData->get("atlas");
+	Ref<Texture2D> texture = tileData->get("texture");
+	int z_index = tileData->get("z_index");
+	Vector2i offset = tileData->get("offset");
+	Vector2i size = tileData->get("size");
 	
 	for (int i = 0; i < cellPositions.size(); i++) {
 		Vector2i cellPos = cellPositions[i];

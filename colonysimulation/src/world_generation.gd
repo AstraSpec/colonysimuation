@@ -19,29 +19,21 @@ const TALL_GRASS_HIGH_THRESHOLD :float = 0.555
 const TALL_GRASS_LOW_THRESHOLD :float = 0.45
 const FLOWER_THRESHOLD :float = 0.05
 
+var mapData : Dictionary
+
 func generate_world() -> void:
 	Tilemap.clear_cells()
-	
-	var tilePos :Dictionary = TilesDb.get_worldspawn_tiles()
+	mapData.clear()
 	
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
-		process_tile(cellPos, tilePos)
+		mapData[cellPos] = process_tile(cellPos)
 	
-	var terrainPos :Dictionary = tilePos["terrain"]
-	var floorPos :Dictionary = tilePos["floor"]
-	var wallPos :Dictionary = tilePos["wall"]
-	var objectPos :Dictionary = tilePos["object"]
+	render_map()
+
+func process_tile(cellPos :Vector2i) -> CellDef:
+	var Cell := CellDef.new()
 	
-	for tile in terrainPos: Tilemap.set_terrain_cells(terrainPos[tile], TilesDb.get_config(tile))
-	for tile in floorPos: Tilemap.set_cells_autotile(floorPos[tile], TilesDb.get_config(tile), floorPos[tile])
-	for tile in objectPos: Tilemap.set_cells(objectPos[tile], TilesDb.get_config(tile))
-	
-	var totalPos :Array = []
-	for tile in wallPos: totalPos.append_array(wallPos[tile])
-	for tile in wallPos: Tilemap.set_cells_autotile(wallPos[tile], TilesDb.get_config(tile), totalPos)
-	
-func process_tile(cellPos :Vector2i, tilePos :Dictionary) -> void:
 	var noise :Dictionary = {
 		"elevation": ElevationNoise.get_noise_2d(cellPos.x, cellPos.y),
 		"geology": GeologyNoise.get_noise_2d(cellPos.x, cellPos.y),
@@ -50,32 +42,38 @@ func process_tile(cellPos :Vector2i, tilePos :Dictionary) -> void:
 		"tree": TreeNoise.get_noise_2d(cellPos.x, cellPos.y),
 	}
 	
-	process_terrain(cellPos, tilePos["terrain"], noise)
-	process_wall(cellPos, tilePos["wall"], noise)
+	Cell.terrain = process_terrain(noise)
+	Cell.wall = process_wall(noise)
 	
 	if noise.elevation <= TERRAIN_THRESHOLD:
-		process_floor(cellPos, tilePos["floor"], noise)
-		process_object(cellPos, tilePos["object"], noise)
+		Cell.floor = process_floor(noise)
+		Cell.object = process_object(noise)
+	
+	return Cell
 
-func process_terrain(cellPos :Vector2i, terrainPos :Dictionary, noise :Dictionary) -> void:
-	if noise.elevation > TERRAIN_THRESHOLD && noise.geology > 0.0:
-		terrainPos["stone_terrain"].append(cellPos)
-	else:
-		terrainPos["dirt_terrain"].append(cellPos)
+func process_terrain(noise :Dictionary) -> TileDef:
+	var type :String = "dirt_terrain"
+	if noise.elevation > TERRAIN_THRESHOLD and noise.geology > 0.0:
+		type = "stone_terrain"
+	
+	return TileManager.tileDb[type]
 
-func process_wall(cellPos :Vector2i, wallPos :Dictionary, noise :Dictionary) -> void:
+func process_wall(noise :Dictionary) -> TileDef:
 	if noise.elevation > CLIFF_THRESHOLD:
 		var type :String = "stone_wall" if noise.geology > 0.0 else "mud_wall"
-		wallPos[type].append(cellPos)
+		return TileManager.tileDb[type]
+	return TileManager.emptyTile
 
-func process_floor(cellPos :Vector2i, floorPos :Dictionary, noise :Dictionary) -> void:
+func process_floor(noise :Dictionary) -> TileDef:
 	if noise.grass > GRASS_THRESHOLD:
-		floorPos["grass"].append(cellPos)
+		return TileManager.tileDb["grass"]
+	return TileManager.emptyTile
 
-func process_object(cellPos :Vector2i, objectPos :Dictionary, noise :Dictionary) -> void:
+func process_object(noise :Dictionary) -> TileDef:
 	var vegetation :String = get_vegetation(noise)
 	if vegetation != "":
-		objectPos[vegetation].append(cellPos)
+		return TileManager.tileDb[vegetation]
+	return TileManager.emptyTile
 
 func get_vegetation(noise :Dictionary) -> String:
 	if noise.tree > TREE_THRESHOLD:
@@ -92,3 +90,48 @@ func get_vegetation(noise :Dictionary) -> String:
 		return "tall_grass1"
 	
 	return ""
+
+func render_map() -> void:
+	var cells :Dictionary = group_cells_by_tile()
+	
+	var terrainCells :Dictionary = cells["terrain"]
+	var floorCells :Dictionary = cells["floor"]
+	var wallCells :Dictionary = cells["wall"]
+	var objectCells :Dictionary = cells["object"]
+	
+	for tile in terrainCells:
+		Tilemap.set_terrain_cells(terrainCells[tile], tile)
+	
+	for tile in floorCells:
+		Tilemap.set_cells_autotile(floorCells[tile], tile, floorCells[tile])
+	
+	for tile in wallCells:
+		Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells))
+	
+	for tile in objectCells:
+		Tilemap.set_cells(objectCells[tile], tile)
+
+func group_cells_by_tile() -> Dictionary:
+	var grouped := {}
+	for layer in CellDef.get_tile_layers():
+		grouped[layer] = {}
+	
+	for cellPos in mapData:
+		var cell :CellDef = mapData[cellPos]
+		for layer in grouped:
+			var tile :TileDef = cell.get(layer)
+			
+			if tile == TileManager.emptyTile:
+				continue
+			
+			if not grouped[layer].has(tile):
+				grouped[layer][tile] = []
+			
+			grouped[layer][tile].append(cellPos)
+	
+	return grouped
+
+func get_total_autotile_cells(wallDb :Dictionary) -> Array:
+	var total :Array = []
+	for tile in wallDb: total.append_array(wallDb[tile])
+	return total
