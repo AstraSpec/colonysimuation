@@ -9,8 +9,8 @@ extends Node2D
 @export var Tilemap :FastTileMap
 @export var Terrain :TextureRect
 
-const WORLD_SIZE :int = 250
-const TILE_SIZE :int = 16
+var WORLD_SIZE :int = Constants.get_world_size()
+var TILE_SIZE :int = Constants.get_tile_size()
 
 const TERRAIN_THRESHOLD :float = 0.27
 const CLIFF_THRESHOLD :float = 0.3
@@ -101,7 +101,7 @@ func render_map() -> void:
 	var objectCells :Dictionary = cells["object"]
 	
 	for tile in terrainCells:
-		Terrain.set_cells_terrain(terrainCells[tile], tile, Vector2i(WORLD_SIZE, WORLD_SIZE))
+		Terrain.set_cells_terrain(terrainCells[tile], tile)
 	
 	for tile in floorCells:
 		Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells))

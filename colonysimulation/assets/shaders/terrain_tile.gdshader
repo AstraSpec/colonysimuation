@@ -3,8 +3,8 @@ shader_type canvas_item;
 uniform sampler2D terrain_data_texture : hint_default_black, filter_nearest;
 uniform sampler2D atlas_texture : hint_default_white, filter_nearest;
 
-uniform float tile_size : hint_range(16.0, 16.0) = 16.0;
-uniform vec2 world_size = vec2(256.0, 256.0);
+uniform float tile_size = 16.0;
+uniform vec2 world_size = vec2(250.0, 250.0);
 uniform vec2 atlas_tile_count = vec2(16.0, 16.0);
 
 varying vec2 world_position;

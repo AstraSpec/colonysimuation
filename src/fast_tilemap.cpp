@@ -86,7 +86,7 @@ void FastTileMap::set_cells(Array cellPositions, Object* tileData) {
 	for (int i = 0; i < cellPositions.size(); i++) {
 		Vector2i cellPos = cellPositions[i];
 		Vector2i tilePos = cellPos * TILE_SIZE;
-		
+	
 		Rect2 src_rect(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
 		Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
 		
@@ -125,11 +125,11 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Arra
         }
         
         Vector2i tilePos = cellPos * TILE_SIZE;
+		
+		Rect2 src_rect(variant.x * TILE_SIZE, variant.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
+		Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
         
-        Rect2 src_rect(variant.x * TILE_SIZE, variant.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
-        Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
-        
-        		texture_batch[z_index].emplace_back(src_rect, dst_rect);
+        texture_batch[z_index].emplace_back(src_rect, dst_rect);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/classes/object.hpp>
 #include <godot_cpp/classes/texture2d.hpp>
+#include "constants.h"
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -37,7 +38,7 @@ protected:
 	static void _bind_methods();
     
     private:
-    static constexpr int TILE_SIZE = 16;
+    static constexpr int TILE_SIZE = Constants::TILE_SIZE;
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
     RID canvas_item;

@@ -13,3 +13,4 @@ windows.release.x86_64 = "res://bin/colonysim.windows.template_release.x86_64.dl
 
 FastTileMap = "res://assets/icons/TileMap.svg"
 Region = "res://assets/icons/Node2D.svg"
+Constants = "res://assets/icons/Node2D.svg"

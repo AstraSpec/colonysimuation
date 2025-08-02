@@ -2,6 +2,7 @@
 
 #include "fast_tilemap.h"
 #include "region.h"
+#include "constants.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -16,6 +17,7 @@ void initialize_colonysim_module(ModuleInitializationLevel p_level) {
 
 	GDREGISTER_RUNTIME_CLASS(FastTileMap);
 	GDREGISTER_RUNTIME_CLASS(Region);
+	GDREGISTER_RUNTIME_CLASS(Constants);
 }
 
 void uninitialize_colonysim_module(ModuleInitializationLevel p_level) {
