@@ -7,6 +7,7 @@ extends Node2D
 @onready var TallGrassNoise :FastNoiseLite = preload("res://assets/noise/tall_grass.tres")
 
 @export var Tilemap :FastTileMap
+@export var Terrain :TextureRect
 
 const WORLD_SIZE :int = 250
 const TILE_SIZE :int = 16
@@ -22,7 +23,7 @@ const FLOWER_THRESHOLD :float = 0.05
 var mapData : Dictionary
 
 func generate_world() -> void:
-	Tilemap.clear_cells()
+	Tilemap.clear_all()
 	mapData.clear()
 	
 	for i in WORLD_SIZE ** 2:
@@ -100,16 +101,18 @@ func render_map() -> void:
 	var objectCells :Dictionary = cells["object"]
 	
 	for tile in terrainCells:
-		Tilemap.set_terrain_cells(terrainCells[tile], tile)
+		Terrain.set_cells_terrain(terrainCells[tile], tile, Vector2i(WORLD_SIZE, WORLD_SIZE))
 	
 	for tile in floorCells:
-		Tilemap.set_cells_autotile(floorCells[tile], tile, floorCells[tile])
+		Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells))
 	
 	for tile in wallCells:
 		Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells))
 	
 	for tile in objectCells:
 		Tilemap.set_cells(objectCells[tile], tile)
+	
+	Tilemap.flush_batches()
 
 func group_cells_by_tile() -> Dictionary:
 	var grouped := {}

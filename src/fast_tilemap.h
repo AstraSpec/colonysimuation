@@ -5,16 +5,25 @@
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/classes/object.hpp>
+#include <godot_cpp/classes/texture2d.hpp>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace std {
     template<>
     struct hash<godot::Vector2i> {
         size_t operator()(const godot::Vector2i& v) const {
-            size_t h1 = hash<float>{}(v.x);
-            size_t h2 = hash<float>{}(v.y);
+            size_t h1 = hash<int>{}(v.x);
+            size_t h2 = hash<int>{}(v.y);
             return h1 ^ (h2 << 1);
+        }
+    };
+    
+    template<>
+    struct hash<godot::Ref<godot::Texture2D>> {
+        size_t operator()(const godot::Ref<godot::Texture2D>& texture) const {
+            return hash<void*>{}(texture.ptr());
         }
     };
 }
@@ -29,20 +38,21 @@ protected:
     
     private:
     static constexpr int TILE_SIZE = 16;
-    static constexpr int ATLAS_SIZE = 4;
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
-    Dictionary tileRIDs;
+    
+    RID canvas_item;
+    std::unordered_map<Ref<Texture2D>, std::unordered_map<int, std::vector<std::pair<Rect2, Rect2>>>> texture_batches;
 
 public:
     FastTileMap();
     ~FastTileMap();
 
-    void set_cell(Vector2i cellPos, Vector2i atlas, Ref<Texture2D> texture, int z_index, const Vector2i offset = Vector2i(0, 0), const Vector2i size = Vector2i(1, 1));
     void set_cells(Array cellPositions, Object* tileData);
-    void clear_cells();
     void set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos);
-    void set_terrain_cells(Array cellPositions, Object* tileData);
     Vector2i get_autotile_variant(Vector2i cellPos, const std::unordered_set<Vector2i>& position_set);
+    
+    void flush_batches();
+    void clear_all();
 };
 
 }

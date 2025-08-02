@@ -19,3 +19,4 @@ colonysimulation/bin/
 
 # Generated files
 godot-cpp/gen/
+/.vscode
