@@ -1,8 +1,10 @@
 extends Region
 
+const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.RIGHT]
 var WORLD_SIZE :int = Constants.get_world_size()
 var CHUNK_SIZE :int = Constants.get_chunk_size()
-const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]
+var TILE_LAYERS :Array = CellDef.get_tile_layers()
+var EMPTY_TILE :TileDef = TileManager.emptyTile
 
 var regionDb :Dictionary
 var totalRegions :int = 0
@@ -14,8 +16,9 @@ func generate_regions(mapData :Dictionary) -> void:
 		var chunkPos := Vector2i(i / ChunkCount, i % ChunkCount)
 		create_regions(chunkPos, mapData)
 	
-	for region in regionDb:
-		get_neighbours(regionDb[region], mapData)
+	for regionData :RegionDef in regionDb.values():
+		get_neighbours(regionData, mapData)
+		get_tiles(regionData, mapData)
 
 # Creates regions within a given chunk.
 func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
@@ -26,6 +29,9 @@ func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
 			var region := RegionDef.new()
 			region.id = totalRegions
 			
+			for layer in TILE_LAYERS:
+				region.tileIndex[layer] = {}
+			
 			regionDb[totalRegions] = region
 			flood_fill_region(cellPos, Vector2i.ZERO, mapData)
 			totalRegions += 1
@@ -35,8 +41,8 @@ func flood_fill_region(pos :Vector2i, dir :Vector2i, mapData :Dictionary) -> voi
 	var floodPos :Vector2i = pos + dir
 	
 	if mapData.get(floodPos) \
-	and mapData[pos].chunk == mapData[floodPos].chunk \
-	and mapData[floodPos].region == -1:
+	and mapData[floodPos].region == -1 \
+	and mapData[pos].chunk == mapData[floodPos].chunk:
 		
 		mapData[floodPos].region = totalRegions
 		regionDb[totalRegions].cells.append(floodPos)
@@ -58,3 +64,13 @@ func is_chunk_edge(cellPos :Vector2i, chunkPos :Vector2i) -> bool:
 	var localPos :Vector2i = cellPos - chunkPos * CHUNK_SIZE
 	return (localPos.x == 0 or localPos.x == CHUNK_SIZE - 1 or 
 			localPos.y == 0 or localPos.y == CHUNK_SIZE - 1)
+
+func get_tiles(regionData :RegionDef, mapData :Dictionary) -> void:
+	for cell in regionData.cells:
+		var cellData :CellDef = mapData[cell]
+		
+		for layer in TILE_LAYERS:
+			var tileData :TileDef = cellData.get(layer)
+			
+			if tileData != EMPTY_TILE:
+				regionData.tileIndex[layer][tileData] = true

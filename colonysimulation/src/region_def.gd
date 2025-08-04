@@ -4,7 +4,4 @@ var id :int = -1
 var cells :Array[Vector2i] = []
 var neighbours :Dictionary = {}
 
-var terrain :Array[TileDef] = []
-var floor :Array[TileDef] = []
-var wall :Array[TileDef] = []
-var object :Array[TileDef] = []
+var tileIndex :Dictionary
