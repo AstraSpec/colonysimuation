@@ -2,7 +2,7 @@ class_name RegionDef
 
 var id :int = -1
 var cells :Array[Vector2i] = []
-var neighbours :Array[RegionDef] = []
+var neighbours :Dictionary = {}
 
 var terrain :Array[TileDef] = []
 var floor :Array[TileDef] = []

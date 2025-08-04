@@ -2,9 +2,9 @@ extends Region
 
 var WORLD_SIZE :int = Constants.get_world_size()
 var CHUNK_SIZE :int = Constants.get_chunk_size()
-const FLOOD_FILL_DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]
+const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT]
 
-var regionData :Dictionary
+var regionDb :Dictionary
 var totalRegions :int = 0
 
 func generate_regions(mapData :Dictionary) -> void:
@@ -14,7 +14,8 @@ func generate_regions(mapData :Dictionary) -> void:
 		var chunkPos := Vector2i(i / ChunkCount, i % ChunkCount)
 		create_regions(chunkPos, mapData)
 	
-	#TODO: Get neighbouring regions
+	for region in regionDb:
+		get_neighbours(regionDb[region], mapData)
 
 # Creates regions within a given chunk.
 func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
@@ -25,7 +26,7 @@ func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
 			var region := RegionDef.new()
 			region.id = totalRegions
 			
-			regionData[totalRegions] = region
+			regionDb[totalRegions] = region
 			flood_fill_region(cellPos, Vector2i.ZERO, mapData)
 			totalRegions += 1
 
@@ -38,7 +39,22 @@ func flood_fill_region(pos :Vector2i, dir :Vector2i, mapData :Dictionary) -> voi
 	and mapData[floodPos].region == -1:
 		
 		mapData[floodPos].region = totalRegions
-		regionData[totalRegions].cells.append(floodPos)
+		regionDb[totalRegions].cells.append(floodPos)
 		
-		for floodDir in FLOOD_FILL_DIRS:
+		for floodDir in DIRS:
 			flood_fill_region(floodPos, floodDir, mapData)
+
+func get_neighbours(regionData :RegionDef, mapData :Dictionary) -> void:
+	for cell in regionData.cells:
+		if not is_chunk_edge(cell, mapData[cell].chunk):
+			continue
+		
+		for dir in DIRS:
+			var neighbourCell = mapData.get(cell + dir)
+			if neighbourCell and neighbourCell.region != regionData.id:
+				regionData.neighbours[neighbourCell.region] = true
+
+func is_chunk_edge(cellPos :Vector2i, chunkPos :Vector2i) -> bool:
+	var localPos :Vector2i = cellPos - chunkPos * CHUNK_SIZE
+	return (localPos.x == 0 or localPos.x == CHUNK_SIZE - 1 or 
+			localPos.y == 0 or localPos.y == CHUNK_SIZE - 1)
