@@ -11,6 +11,7 @@ extends Node2D
 
 var WORLD_SIZE :int = Constants.get_world_size()
 var TILE_SIZE :int = Constants.get_tile_size()
+var CHUNK_SIZE :int = Constants.get_chunk_size()
 
 const TERRAIN_THRESHOLD :float = 0.27
 const CLIFF_THRESHOLD :float = 0.3
@@ -20,17 +21,18 @@ const TALL_GRASS_HIGH_THRESHOLD :float = 0.555
 const TALL_GRASS_LOW_THRESHOLD :float = 0.45
 const FLOWER_THRESHOLD :float = 0.05
 
-var mapData : Dictionary
-
-func generate_world() -> void:
+func generate_world() -> Dictionary:
 	Tilemap.clear_all()
-	mapData.clear()
+	
+	var mapData :Dictionary = {}
 	
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
 		mapData[cellPos] = process_tile(cellPos)
 	
-	render_map()
+	render_map(mapData)
+	
+	return mapData
 
 func process_tile(cellPos :Vector2i) -> CellDef:
 	var Cell := CellDef.new()
@@ -49,6 +51,8 @@ func process_tile(cellPos :Vector2i) -> CellDef:
 	if noise.elevation <= TERRAIN_THRESHOLD:
 		Cell.floor = process_floor(noise)
 		Cell.object = process_object(noise)
+	
+	Cell.chunk = Vector2i(cellPos.x / CHUNK_SIZE, cellPos.y / CHUNK_SIZE)
 	
 	return Cell
 
@@ -92,8 +96,8 @@ func get_vegetation(noise :Dictionary) -> String:
 	
 	return ""
 
-func render_map() -> void:
-	var cells :Dictionary = group_cells_by_tile()
+func render_map(mapData :Dictionary) -> void:
+	var cells :Dictionary = group_cells_by_tile(mapData)
 	
 	var terrainCells :Dictionary = cells["terrain"]
 	var floorCells :Dictionary = cells["floor"]
@@ -114,7 +118,7 @@ func render_map() -> void:
 	
 	Tilemap.flush_batches()
 
-func group_cells_by_tile() -> Dictionary:
+func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
 	var grouped := {}
 	for layer in CellDef.get_tile_layers():
 		grouped[layer] = {}

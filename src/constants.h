@@ -15,11 +15,13 @@ public:
     Constants();
     ~Constants();
 
-    static const int WORLD_SIZE = 250;
+    static const int WORLD_SIZE = 256;
     static const int TILE_SIZE = 16;
+    static const int CHUNK_SIZE = 16;
     
     static int get_world_size();
     static int get_tile_size();
+    static int get_chunk_size();
 };
 
 }

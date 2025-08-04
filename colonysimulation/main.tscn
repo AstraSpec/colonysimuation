@@ -1,11 +1,13 @@
-[gd_scene load_steps=8 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=10 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
 [ext_resource type="Script" path="res://src/camera.gd" id="2_qyceu"]
+[ext_resource type="Script" path="res://src/world.gd" id="3_xaeo1"]
 [ext_resource type="Script" path="res://src/debug_info.gd" id="4_0btfk"]
 [ext_resource type="Shader" path="res://assets/shaders/terrain_tile.gdshader" id="4_5gubx"]
 [ext_resource type="Script" path="res://src/fast_terrain.gd" id="5_bk7fs"]
+[ext_resource type="Script" path="res://src/region.gd" id="5_el486"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kmafp"]
 shader = ExtResource("4_5gubx")
@@ -13,24 +15,32 @@ shader_parameter/tile_size = 32.0
 shader_parameter/world_size = Vector2(250, 250)
 shader_parameter/atlas_tile_count = Vector2(16, 16)
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("WorldGeneration")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("World")]
 script = ExtResource("1_c6mbo")
-WorldGeneration = NodePath("WorldGeneration")
+World = NodePath("World")
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
-[node name="WorldGeneration" type="Node2D" parent="." node_paths=PackedStringArray("Tilemap", "Terrain")]
-script = ExtResource("1_rx1eh")
-Tilemap = NodePath("FastTileMap")
-Terrain = NodePath("FastTerrain")
+[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions")]
+script = ExtResource("3_xaeo1")
+WorldGeneration = NodePath("WorldGeneration")
+Regions = NodePath("Regions")
 
-[node name="FastTerrain" type="TextureRect" parent="WorldGeneration"]
+[node name="FastTerrain" type="TextureRect" parent="World"]
 material = SubResource("ShaderMaterial_kmafp")
 script = ExtResource("5_bk7fs")
 
-[node name="FastTileMap" type="FastTileMap" parent="WorldGeneration"]
+[node name="FastTileMap" type="FastTileMap" parent="World"]
+
+[node name="Regions" type="Region" parent="World"]
+script = ExtResource("5_el486")
+
+[node name="WorldGeneration" type="Node2D" parent="World" node_paths=PackedStringArray("Tilemap", "Terrain")]
+script = ExtResource("1_rx1eh")
+Tilemap = NodePath("../FastTileMap")
+Terrain = NodePath("../FastTerrain")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
