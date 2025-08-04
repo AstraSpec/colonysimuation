@@ -58,8 +58,8 @@ func process_tile(cellPos :Vector2i) -> CellDef:
 
 func process_terrain(noise :Dictionary) -> TileDef:
 	var type :String = "dirt_terrain"
-	if noise.elevation > TERRAIN_THRESHOLD and noise.geology > 0.0:
-		type = "stone_terrain"
+	if noise.elevation > TERRAIN_THRESHOLD:
+		type = "stone_terrain" if noise.geology > 0.0 else "mud_terrain"
 	
 	return TileManager.tileDb[type]
 

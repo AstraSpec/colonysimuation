@@ -9,6 +9,15 @@
 	"flags": ["WORLDSPAWN"]
   },
   {
+	"id": "mud_terrain",
+	"name": "Dirt",
+	"type": "terrain",
+	"atlas": [6, 0],
+	"size": [1, 1],
+	"texture": "terrain.png",
+	"flags": ["WORLDSPAWN"]
+  },
+  {
 	"id": "dirt_terrain",
 	"name": "Dirt",
 	"type": "terrain",
