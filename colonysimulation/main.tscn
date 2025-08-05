@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=11 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
@@ -8,6 +8,7 @@
 [ext_resource type="Shader" path="res://assets/shaders/terrain_tile.gdshader" id="4_5gubx"]
 [ext_resource type="Script" path="res://src/fast_terrain.gd" id="5_bk7fs"]
 [ext_resource type="Script" path="res://src/region.gd" id="5_el486"]
+[ext_resource type="Script" path="res://src/world_info.gd" id="9_c3gq7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kmafp"]
 shader = ExtResource("4_5gubx")
@@ -49,3 +50,17 @@ offset_right = 40.0
 offset_bottom = 23.0
 script = ExtResource("4_0btfk")
 Camera = NodePath("../../Camera")
+
+[node name="WorldInfo" type="Label" parent="UI" node_paths=PackedStringArray("World")]
+modulate = Color(1, 1, 1, 0.443137)
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+script = ExtResource("9_c3gq7")
+World = NodePath("../../World")
