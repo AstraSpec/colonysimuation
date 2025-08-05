@@ -45,12 +45,10 @@ func process_tile(cellPos :Vector2i) -> CellDef:
 		"tree": TreeNoise.get_noise_2d(cellPos.x, cellPos.y),
 	}
 	
-	Cell.terrain = process_terrain(noise)
-	Cell.wall = process_wall(noise)
-	
-	if noise.elevation <= TERRAIN_THRESHOLD:
-		Cell.floor = process_floor(noise)
-		Cell.object = process_object(noise)
+	Cell.tiles.terrain = process_terrain(noise)
+	Cell.tiles.floor = process_floor(noise)
+	Cell.tiles.wall = process_wall(noise)
+	Cell.tiles.object = process_object(noise)
 	
 	Cell.chunk = Vector2i(cellPos.x / CHUNK_SIZE, cellPos.y / CHUNK_SIZE)
 	
@@ -67,18 +65,20 @@ func process_wall(noise :Dictionary) -> TileDef:
 	if noise.elevation > CLIFF_THRESHOLD:
 		var type :String = "stone_wall" if noise.geology > 0.0 else "mud_wall"
 		return TileManager.tileDb[type]
-	return TileManager.emptyTile
+	return null
 
 func process_floor(noise :Dictionary) -> TileDef:
-	if noise.grass > GRASS_THRESHOLD:
-		return TileManager.tileDb["grass"]
-	return TileManager.emptyTile
+	if noise.elevation <= TERRAIN_THRESHOLD:
+		if noise.grass > GRASS_THRESHOLD:
+			return TileManager.tileDb["grass"]
+	return null
 
 func process_object(noise :Dictionary) -> TileDef:
-	var vegetation :String = get_vegetation(noise)
-	if vegetation != "":
-		return TileManager.tileDb[vegetation]
-	return TileManager.emptyTile
+	if noise.elevation <= TERRAIN_THRESHOLD:
+		var vegetation :String = get_vegetation(noise)
+		if vegetation != "":
+			return TileManager.tileDb[vegetation]
+	return null
 
 func get_vegetation(noise :Dictionary) -> String:
 	if noise.tree > TREE_THRESHOLD:
@@ -126,9 +126,9 @@ func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
 	for cellPos in mapData:
 		var cell :CellDef = mapData[cellPos]
 		for layer in grouped:
-			var tile :TileDef = cell.get(layer)
+			var tile :TileDef = cell.tiles[layer]
 			
-			if tile == TileManager.emptyTile:
+			if tile == null:
 				continue
 			
 			if not grouped[layer].has(tile):

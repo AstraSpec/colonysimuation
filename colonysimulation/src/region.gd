@@ -4,7 +4,6 @@ const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.RIGHT]
 var WORLD_SIZE :int = Constants.get_world_size()
 var CHUNK_SIZE :int = Constants.get_chunk_size()
 var TILE_LAYERS :Array = CellDef.get_tile_layers()
-var EMPTY_TILE :TileDef = TileManager.emptyTile
 
 var regionDb :Dictionary
 var totalRegions :int = 0
@@ -69,8 +68,8 @@ func get_tiles(regionData :RegionDef, mapData :Dictionary) -> void:
 	for cell in regionData.cells:
 		var cellData :CellDef = mapData[cell]
 		
-		for layer in TILE_LAYERS:
-			var tileData :TileDef = cellData.get(layer)
+		for layer :String in cellData.tiles:
+			var tileData :TileDef = cellData.tiles[layer]
 			
-			if tileData != EMPTY_TILE:
+			if tileData != null:
 				regionData.tileIndex[layer][tileData] = true

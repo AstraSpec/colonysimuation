@@ -4,7 +4,6 @@ extends Label
 
 var WORLD_SIZE :int = Constants.get_world_size()
 var TILE_SIZE :int = Constants.get_tile_size()
-var EMPTY_TILE :TileDef = TileManager.emptyTile
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -14,9 +13,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		var cellData :CellDef = World.mapData.get(cellPos)
 		if cellData:
 			var info :Array = []
-			for layer in CellDef.get_tile_layers():
-				var tileData :TileDef = cellData.get(layer)
-				if tileData != EMPTY_TILE:
+			for tileData :TileDef in cellData.tiles.values():
+				if tileData != null:
 					info.append(tileData.id)
 			
 			info.append(str("Region: ", cellData.region))

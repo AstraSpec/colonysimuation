@@ -52,7 +52,7 @@ script = ExtResource("4_0btfk")
 Camera = NodePath("../../Camera")
 
 [node name="WorldInfo" type="Label" parent="UI" node_paths=PackedStringArray("World")]
-modulate = Color(1, 1, 1, 0.443137)
+modulate = Color(1, 1, 1, 0.588235)
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0

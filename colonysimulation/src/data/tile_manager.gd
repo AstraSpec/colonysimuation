@@ -4,7 +4,7 @@ var textures :Dictionary
 
 var tileDb :Dictionary
 
-var emptyTile := TileDef.new()
+var TILE_LAYERS :Array = CellDef.get_tile_layers()
 
 func _init() -> void:
 	load_db("res://data/tiles/")
@@ -41,4 +41,4 @@ func get_texture(texture :String) -> CompressedTexture2D:
 	return textures[texture]
 
 func get_z_index(type :String) -> int:
-	return CellDef.get_tile_layers().find(type)
+	return TILE_LAYERS.find(type)
