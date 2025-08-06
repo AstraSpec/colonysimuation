@@ -71,27 +71,45 @@ FastTileMap::~FastTileMap() {
 	}
 }
 
-// TODO:
-// Bring back set_cell and clear_cell with improvements
-
 void FastTileMap::set_cells(Array cellPositions, Object* tileData) {
-	Vector2i atlas = tileData->get("atlas");
-	Ref<Texture2D> texture = tileData->get("texture");
-	int z_index = tileData->get("z_index");
-	Vector2i offset = tileData->get("offset");
-	Vector2i size = tileData->get("size");
-	
-	auto& texture_batch = texture_batches[texture];
-	
-	for (int i = 0; i < cellPositions.size(); i++) {
-		Vector2i cellPos = cellPositions[i];
-		Vector2i tilePos = cellPos * TILE_SIZE;
-	
-		Rect2 src_rect(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
-		Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
-		
-		texture_batch[z_index].emplace_back(src_rect, dst_rect);
-	}
+    Ref<Texture2D> texture = tileData->get("texture");
+    int z_index = tileData->get("z_index");
+    Vector2i offset = tileData->get("offset");
+    Vector2i size = tileData->get("size");
+    auto& texture_batch = texture_batches[texture];
+    
+    for (int i = 0; i < cellPositions.size(); i++) {
+        Vector2i cellPos = cellPositions[i];
+        Vector2i atlas = resolve_atlas(cellPos, tileData);  // Function A
+        render_tile(cellPos, atlas, offset, size, z_index, texture_batch);  // Function B
+    }
+}
+
+Vector2i FastTileMap::resolve_atlas(Vector2i cellPos, Object* tileData) {
+    Variant atlas_data = tileData->get("atlas");
+    
+    if (atlas_data.get_type() == Variant::ARRAY) {
+        Array variants = atlas_data;
+        int variant_count = variants.size();
+        
+        uint32_t hash = (cellPos.x * 73856093) ^ (cellPos.y * 19349663);
+        hash = hash ^ (hash >> 16);
+        hash = hash * 2654435761U;
+        int variant_index = hash % variant_count;
+        
+        return variants[variant_index];
+    } else {
+        return atlas_data;
+    }
+}
+
+void FastTileMap::render_tile(Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, int z_index, 
+                             std::unordered_map<int, std::vector<std::pair<Rect2, Rect2>>>& texture_batch) {
+    Vector2i tilePos = cellPos * TILE_SIZE;
+    Rect2 src_rect(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
+    Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
+    
+    texture_batch[z_index].emplace_back(src_rect, dst_rect);
 }
 
 void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos) {
@@ -130,7 +148,7 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Arra
 		Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
         
         texture_batch[z_index].emplace_back(src_rect, dst_rect);
-	}
+		}
 }
 
 void FastTileMap::flush_batches() {

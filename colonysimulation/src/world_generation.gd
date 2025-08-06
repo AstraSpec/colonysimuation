@@ -82,15 +82,13 @@ func process_object(noise :Dictionary) -> TileDef:
 
 func get_vegetation(noise :Dictionary) -> String:
 	if noise.tree > TREE_THRESHOLD:
-		var trees :Array = ["tree1", "tree2", "tree3"]
-		trees.shuffle()
-		return trees[0]
+		return "tree"
 	
 	elif noise.tallGrass > TALL_GRASS_HIGH_THRESHOLD:
 		if randf() > FLOWER_THRESHOLD:
 			return "tall_grass2"
 		else:
-			return "flower1" if randf() > 0.5 else "flower2"
+			return "flower"
 	elif noise.tallGrass > TALL_GRASS_LOW_THRESHOLD:
 		return "tall_grass1"
 	

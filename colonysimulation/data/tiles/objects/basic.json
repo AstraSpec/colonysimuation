@@ -1,29 +1,13 @@
 [
   {
-	"id": "tree1",
+	"id": "tree",
 	"name": "tree",
 	"type": "object",
-	"atlas": [0, 0],
-	"size": [1, 2],
-	"offset": [0, -1],
-	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
-  },
-  {
-	"id": "tree2",
-	"name": "tree",
-	"type": "object",
-	"atlas": [1, 0],
-	"size": [1, 2],
-	"offset": [0, -1],
-	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
-  },
-  {
-	"id": "tree3",
-	"name": "tree",
-	"type": "object",
-	"atlas": [2, 0],
+	"atlas_variants": [
+		[0, 0],
+		[1, 0],
+		[2, 0]
+		],
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",
@@ -50,20 +34,13 @@
 	"flags": ["WORLDSPAWN"]
   },
   {
-	"id": "flower1",
-	"name": "grass",
+	"id": "flower",
+	"name": "flower",
 	"type": "object",
-	"atlas": [4, 0],
-	"size": [1, 2],
-	"offset": [0, -1],
-	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
-  },
-  {
-	"id": "flower2",
-	"name": "grass",
-	"type": "object",
-	"atlas": [3, 0],
+	"atlas_variants": [
+		[3, 0],
+		[4, 0]
+		],
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",

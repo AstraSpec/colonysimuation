@@ -20,11 +20,21 @@ func _init_tiledata() -> void:
 		tile.name = element.name
 		tile.type = element.type
 		tile.texture = get_texture(element["texture"])
-		tile.atlas = get_vector2(element, "atlas", tile)
 		tile.size = get_vector2(element, "size", tile)
 		tile.offset = get_vector2(element, "offset", tile)
 		tile.z_index = get_z_index(element["type"])
 		tile.flags = element.get("flags", [])
+		
+		if element.has("atlas"):
+			tile.atlas = get_vector2(element, "atlas", tile)
+		elif element.has("atlas_variants"):
+			var oldVariants :Array = element["atlas_variants"]
+			var newVariants :Array = []
+			
+			for v in oldVariants:
+				newVariants.append(Vector2i(v[0], v[1]))
+			
+			tile.atlas = newVariants
 		
 		tileDb[tile.id] = tile
 

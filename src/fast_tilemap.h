@@ -44,6 +44,10 @@ protected:
     RID canvas_item;
     std::unordered_map<Ref<Texture2D>, std::unordered_map<int, std::vector<std::pair<Rect2, Rect2>>>> texture_batches;
 
+    static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
+    void render_tile(Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, int z_index, 
+                    std::unordered_map<int, std::vector<std::pair<Rect2, Rect2>>>& texture_batch);
+
 public:
     FastTileMap();
     ~FastTileMap();
