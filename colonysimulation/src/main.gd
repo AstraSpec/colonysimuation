@@ -1,15 +1,13 @@
 extends Node2D
 
 @export var World :Node2D
+@export var Camera :Camera2D
 
 func _ready() -> void:
 	World.start()
+	Camera.start()
 
 #TODO: 
-# - alt tiles
-# rename trees
-
-# debug info
 # debug menu
 
 # - entities
@@ -17,5 +15,3 @@ func _ready() -> void:
 # path searching
 
 # - jobs
-
-# get CellDef TileDefs function?

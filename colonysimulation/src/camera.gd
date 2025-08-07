@@ -9,6 +9,10 @@ var zoomLevel :int = 3
 var scrolled :bool = false
 var dir :Vector2
 
+func start() -> void:
+	var centre = Constants.get_tile_size() * Constants.get_world_size() / 2
+	position = Vector2(centre, centre)
+
 func _unhandled_input(event :InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
 		position -= event.relative * DRAG_SPEED / zoom
