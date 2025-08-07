@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=12 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
@@ -8,6 +8,7 @@
 [ext_resource type="Shader" path="res://assets/shaders/terrain_tile.gdshader" id="4_5gubx"]
 [ext_resource type="Script" path="res://src/fast_terrain.gd" id="5_bk7fs"]
 [ext_resource type="Script" path="res://src/region.gd" id="5_el486"]
+[ext_resource type="Script" path="res://src/entities.gd" id="8_mq6vu"]
 [ext_resource type="Script" path="res://src/world_info.gd" id="9_c3gq7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kmafp"]
@@ -25,10 +26,11 @@ Camera = NodePath("Camera")
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
-[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions")]
+[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities")]
 script = ExtResource("3_xaeo1")
 WorldGeneration = NodePath("WorldGeneration")
 Regions = NodePath("Regions")
+Entities = NodePath("Entities")
 
 [node name="FastTerrain" type="TextureRect" parent="World"]
 material = SubResource("ShaderMaterial_kmafp")
@@ -43,6 +45,9 @@ script = ExtResource("5_el486")
 script = ExtResource("1_rx1eh")
 Tilemap = NodePath("../FastTileMap")
 Terrain = NodePath("../FastTerrain")
+
+[node name="Entities" type="Node2D" parent="World"]
+script = ExtResource("8_mq6vu")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
