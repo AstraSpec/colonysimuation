@@ -52,7 +52,7 @@ corner_radius_bottom_left = 4
 
 [resource]
 default_font = SubResource("SystemFont_ymrc2")
-default_font_size = 8
+default_font_size = 12
 Button/styles/focus = SubResource("StyleBoxEmpty_4l4pt")
 Button/styles/hover = SubResource("StyleBoxFlat_j46vx")
 Button/styles/normal = SubResource("StyleBoxFlat_bormo")

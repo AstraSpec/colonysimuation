@@ -10,7 +10,8 @@ func _ready() -> void:
 	UI.init_ui()
 
 #TODO: 
-# debug menu
+# set tile
+# z-levels
 
 # - entities
 # pathfinding

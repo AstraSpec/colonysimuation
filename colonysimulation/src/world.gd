@@ -4,10 +4,11 @@ extends Node2D
 @export var Regions :Node2D
 @export var Entities :Node2D
 @export var WorldInfo :Label
+@export var ActionHint :Control
 
 var TILE_SIZE :int = Constants.get_tile_size()
 
-var mapData : Dictionary
+var mapData :Dictionary
 var mouseCellPos :Vector2i
 
 var pendingAction :ActionDef
@@ -33,11 +34,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			for i in args.size():
 				if args[i] is Callable:
 					args[i] = args[i].call()
-
+			
 			if action and action.is_valid():
 				action.callv(args)
 
-			pendingAction = null
+	if Input.is_action_just_pressed("esc"):
+		pendingAction = null
+		ActionHint.action_cleared()
 
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos

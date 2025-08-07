@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=16 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://src/world_info.gd" id="9_c3gq7"]
 [ext_resource type="Theme" uid="uid://dp5bub3nyq2jf" path="res://assets/themes/default.tres" id="10_nybe6"]
 [ext_resource type="Script" path="res://src/ui/debug/debug_menu.gd" id="12_t1uuq"]
+[ext_resource type="Script" path="res://src/ui/action_hint.gd" id="13_lh0c6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kmafp"]
 shader = ExtResource("4_5gubx")
@@ -30,12 +31,13 @@ UI = NodePath("UI")
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
-[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "WorldInfo")]
+[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "WorldInfo", "ActionHint")]
 script = ExtResource("3_xaeo1")
 WorldGeneration = NodePath("WorldGeneration")
 Regions = NodePath("Regions")
 Entities = NodePath("Entities")
 WorldInfo = NodePath("../UI/WorldInfo")
+ActionHint = NodePath("../UI/ActionHint")
 
 [node name="FastTerrain" type="TextureRect" parent="World"]
 material = SubResource("ShaderMaterial_kmafp")
@@ -78,7 +80,23 @@ grow_vertical = 0
 theme = ExtResource("10_nybe6")
 script = ExtResource("9_c3gq7")
 
-[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities")]
+[node name="ActionHint" type="Control" parent="UI" node_paths=PackedStringArray("ActionLabel")]
+visible = false
+modulate = Color(1, 1, 1, 0.784314)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme = ExtResource("10_nybe6")
+script = ExtResource("13_lh0c6")
+ActionLabel = NodePath("ActionLabel")
+
+[node name="ActionLabel" type="Label" parent="UI/ActionHint"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities", "ActionHint")]
 visible = false
 layout_mode = 3
 anchor_left = 0.0208333
@@ -92,6 +110,7 @@ script = ExtResource("12_t1uuq")
 ButtonContainer = NodePath("MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer")
 World = NodePath("../../World")
 Entities = NodePath("../../World/Entities")
+ActionHint = NodePath("../ActionHint")
 metadata/_edit_use_anchors_ = true
 
 [node name="MainPanel" type="Panel" parent="UI/DebugMenu"]

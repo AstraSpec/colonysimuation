@@ -3,6 +3,7 @@ extends Control
 @export var ButtonContainer :VBoxContainer
 @export var World :Node2D
 @export var Entities :Node2D
+@export var ActionHint :Control
 
 @onready var DebugButton :PackedScene = preload("res://src/ui/debug/debug_button.tscn")
 
@@ -24,4 +25,5 @@ func _on_debug_button_pressed(button: Button) -> void:
 	button.args)
 	
 	World.pendingAction = pendingAction
+	ActionHint.action_selected(button.text)
 	hide()
