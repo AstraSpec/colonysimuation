@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dknxrdmp15w5b"]
+
+[ext_resource type="Script" path="res://src/ui/debug/debug_button.gd" id="1_5i26h"]
+
+[node name="DebugButton" type="Button"]
+text = "Summon Entity"
+alignment = 0
+script = ExtResource("1_5i26h")

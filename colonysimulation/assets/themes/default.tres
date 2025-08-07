@@ -1,0 +1,61 @@
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://dp5bub3nyq2jf"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4l4pt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j46vx"]
+content_margin_right = 200.0
+bg_color = Color(0.141176, 0.141176, 0.141176, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.140625, 0.140625, 0.140625, 1)
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bormo"]
+content_margin_right = 200.0
+bg_color = Color(0.0820313, 0.0820313, 0.0820313, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.0823529, 0.0823529, 0.0823529, 1)
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ngpgh"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pieu2"]
+bg_color = Color(0.136719, 0.136719, 0.136719, 1)
+border_width_left = 2
+border_width_top = 24
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0823529, 0.0823529, 0.0823529, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="SystemFont" id="SystemFont_ymrc2"]
+
+[resource]
+default_font = SubResource("SystemFont_ymrc2")
+default_font_size = 8
+Button/styles/focus = SubResource("StyleBoxEmpty_4l4pt")
+Button/styles/hover = SubResource("StyleBoxFlat_j46vx")
+Button/styles/normal = SubResource("StyleBoxFlat_bormo")
+Button/styles/pressed = SubResource("StyleBoxFlat_bormo")
+Label/styles/normal = SubResource("StyleBoxEmpty_ngpgh")
+Panel/styles/panel = SubResource("StyleBoxFlat_pieu2")

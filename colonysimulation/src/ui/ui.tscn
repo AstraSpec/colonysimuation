@@ -1,0 +1,77 @@
+[gd_scene load_steps=6 format=3 uid="uid://ufioiubnw7lk"]
+
+[ext_resource type="Script" path="res://src/ui/ui.gd" id="1_d36s6"]
+[ext_resource type="Script" path="res://src/debug_info.gd" id="2_1j8oc"]
+[ext_resource type="Theme" uid="uid://dp5bub3nyq2jf" path="res://assets/themes/default.tres" id="3_1gf7i"]
+[ext_resource type="Script" path="res://src/world_info.gd" id="4_35evv"]
+[ext_resource type="Script" path="res://src/ui/debug/debug_menu.gd" id="5_fsge5"]
+
+[node name="UI" type="CanvasLayer" node_paths=PackedStringArray("DebugMenu")]
+script = ExtResource("1_d36s6")
+DebugMenu = NodePath("DebugMenu")
+
+[node name="DebugInfo" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("2_1j8oc")
+
+[node name="WorldInfo" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.588235)
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme = ExtResource("3_1gf7i")
+script = ExtResource("4_35evv")
+
+[node name="DebugMenu" type="Control" parent="." node_paths=PackedStringArray("ButtonContainer")]
+layout_mode = 3
+anchor_left = 0.0208333
+anchor_top = 0.0324074
+anchor_right = 0.979167
+anchor_bottom = 0.967593
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource("3_1gf7i")
+script = ExtResource("5_fsge5")
+ButtonContainer = NodePath("MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer")
+metadata/_edit_use_anchors_ = true
+
+[node name="MainPanel" type="Panel" parent="DebugMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="DebugMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugMenu/MarginContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="DebugMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Debug Menu"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DebugMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonContainer" type="VBoxContainer" parent="DebugMenu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2

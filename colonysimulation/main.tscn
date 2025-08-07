@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=15 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
@@ -9,7 +9,10 @@
 [ext_resource type="Script" path="res://src/fast_terrain.gd" id="5_bk7fs"]
 [ext_resource type="Script" path="res://src/region.gd" id="5_el486"]
 [ext_resource type="Script" path="res://src/entities.gd" id="8_mq6vu"]
+[ext_resource type="Script" path="res://src/ui/ui.gd" id="9_bfo0p"]
 [ext_resource type="Script" path="res://src/world_info.gd" id="9_c3gq7"]
+[ext_resource type="Theme" uid="uid://dp5bub3nyq2jf" path="res://assets/themes/default.tres" id="10_nybe6"]
+[ext_resource type="Script" path="res://src/ui/debug/debug_menu.gd" id="12_t1uuq"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kmafp"]
 shader = ExtResource("4_5gubx")
@@ -17,20 +20,22 @@ shader_parameter/tile_size = 32.0
 shader_parameter/world_size = Vector2(250, 250)
 shader_parameter/atlas_tile_count = Vector2(16, 16)
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("World", "Camera")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("World", "Camera", "UI")]
 script = ExtResource("1_c6mbo")
 World = NodePath("World")
 Camera = NodePath("Camera")
+UI = NodePath("UI")
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
-[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities")]
+[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "WorldInfo")]
 script = ExtResource("3_xaeo1")
 WorldGeneration = NodePath("WorldGeneration")
 Regions = NodePath("Regions")
 Entities = NodePath("Entities")
+WorldInfo = NodePath("../UI/WorldInfo")
 
 [node name="FastTerrain" type="TextureRect" parent="World"]
 material = SubResource("ShaderMaterial_kmafp")
@@ -49,7 +54,9 @@ Terrain = NodePath("../FastTerrain")
 [node name="Entities" type="Node2D" parent="World"]
 script = ExtResource("8_mq6vu")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." node_paths=PackedStringArray("DebugMenu")]
+script = ExtResource("9_bfo0p")
+DebugMenu = NodePath("DebugMenu")
 
 [node name="DebugInfo" type="Label" parent="UI" node_paths=PackedStringArray("Camera")]
 offset_right = 40.0
@@ -57,7 +64,7 @@ offset_bottom = 23.0
 script = ExtResource("4_0btfk")
 Camera = NodePath("../../Camera")
 
-[node name="WorldInfo" type="Label" parent="UI" node_paths=PackedStringArray("World")]
+[node name="WorldInfo" type="Label" parent="UI"]
 modulate = Color(1, 1, 1, 0.588235)
 anchors_preset = 3
 anchor_left = 1.0
@@ -68,5 +75,55 @@ offset_left = -40.0
 offset_top = -23.0
 grow_horizontal = 0
 grow_vertical = 0
+theme = ExtResource("10_nybe6")
 script = ExtResource("9_c3gq7")
+
+[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities")]
+visible = false
+layout_mode = 3
+anchor_left = 0.0208333
+anchor_top = 0.0324074
+anchor_right = 0.979167
+anchor_bottom = 0.967593
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource("10_nybe6")
+script = ExtResource("12_t1uuq")
+ButtonContainer = NodePath("MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer")
 World = NodePath("../../World")
+Entities = NodePath("../../World/Entities")
+metadata/_edit_use_anchors_ = true
+
+[node name="MainPanel" type="Panel" parent="UI/DebugMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/DebugMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/DebugMenu/MarginContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/DebugMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Debug Menu"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/DebugMenu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonContainer" type="VBoxContainer" parent="UI/DebugMenu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
