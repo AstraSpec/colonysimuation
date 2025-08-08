@@ -40,14 +40,23 @@ func process_action() -> void:
 	if !pendingAction: return
 	
 	var action = pendingAction.action
-	var args = pendingAction.args.duplicate()
+	var args = []
 		
-	for i in args.size():
-		if args[i] is Callable:
-			args[i] = args[i].call()
+	for arg in pendingAction.args:
+		args.append(resolve_callables(arg))
 		
 	if action and action.is_valid():
 		action.callv(args)
+
+func resolve_callables(arg):
+	if arg is Callable:
+		return arg.call()
+	elif arg is Array:
+		var array: Array = []
+		for element in arg:
+			array.append(resolve_callables(element))
+		return array
+	return arg
 
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos
