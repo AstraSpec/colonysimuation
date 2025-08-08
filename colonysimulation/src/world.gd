@@ -14,10 +14,7 @@ var mouseCellPos :Vector2i
 var pendingAction :ActionDef
 
 func start() -> void:
-	var timer1 = Time.get_ticks_msec()
 	mapData = WorldGeneration.generate_world()
-	var timer2 = Time.get_ticks_msec()
-	print(str(timer2-timer1))
 	Regions.generate_regions(mapData)
 	Entities.summon_entity(Vector2i(126, 126))
 	

@@ -96,7 +96,7 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities", "ActionHint")]
+[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities", "FastTilemap", "ActionHint")]
 visible = false
 layout_mode = 3
 anchor_left = 0.0208333
@@ -110,6 +110,7 @@ script = ExtResource("12_t1uuq")
 ButtonContainer = NodePath("MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer")
 World = NodePath("../../World")
 Entities = NodePath("../../World/Entities")
+FastTilemap = NodePath("../../World/FastTileMap")
 ActionHint = NodePath("../ActionHint")
 metadata/_edit_use_anchors_ = true
 

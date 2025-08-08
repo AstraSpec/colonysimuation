@@ -10,7 +10,7 @@ func _ready() -> void:
 	UI.init_ui()
 
 #TODO: 
-# set tile
+# precompute flags bitmask
 # z-levels
 
 # - entities

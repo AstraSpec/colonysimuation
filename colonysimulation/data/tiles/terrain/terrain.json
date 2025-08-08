@@ -32,6 +32,6 @@
 	"type": "floor",
 	"atlas": [0, 0],
 	"texture": "grass.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": ["WORLDSPAWN", "AUTOTILE"]
   },
 ] 

@@ -106,13 +106,15 @@ func render_map(mapData :Dictionary) -> void:
 		Terrain.set_cells_terrain(terrainCells[tile], tile)
 	
 	for tile in floorCells:
-		Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells))
+		Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells), false)
 	
 	for tile in wallCells:
-		Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells))
+		Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells), false)
 	
 	for tile in objectCells:
-		Tilemap.set_cells(objectCells[tile], tile)
+		Tilemap.set_cells(objectCells[tile], tile, false)
+	
+	Tilemap.redraw_tiles()
 
 func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
 	var grouped := {}
