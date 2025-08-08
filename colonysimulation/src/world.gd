@@ -22,10 +22,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
 	
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+	if Input.is_action_just_pressed("left_click"):
 		process_action()
 
-	if Input.is_action_just_pressed("esc"):
+	if Input.is_action_just_pressed("esc") or Input.is_action_just_pressed("right_click"):
 		pendingAction = null
 		ActionHint.action_cleared()
 
