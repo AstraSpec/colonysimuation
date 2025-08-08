@@ -113,8 +113,6 @@ func render_map(mapData :Dictionary) -> void:
 	
 	for tile in objectCells:
 		Tilemap.set_cells(objectCells[tile], tile)
-	
-	Tilemap.flush_batches()
 
 func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
 	var grouped := {}

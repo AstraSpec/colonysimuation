@@ -20,13 +20,6 @@ namespace std {
             return h1 ^ (h2 << 1);
         }
     };
-    
-    template<>
-    struct hash<godot::Ref<godot::Texture2D>> {
-        size_t operator()(const godot::Ref<godot::Texture2D>& texture) const {
-            return hash<void*>{}(texture.ptr());
-        }
-    };
 }
 
 namespace godot {
@@ -42,11 +35,9 @@ protected:
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
     RID canvas_item;
-    std::unordered_map<Ref<Texture2D>, std::unordered_map<int, std::vector<std::pair<Rect2, Rect2>>>> texture_batches;
 
     static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
-    void render_tile(Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, int z_index, 
-                    std::unordered_map<int, std::vector<std::pair<Rect2, Rect2>>>& texture_batch);
+    void render_tile(Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture);
 
 public:
     FastTileMap();
@@ -56,8 +47,8 @@ public:
     void set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos);
     Vector2i get_autotile_variant(Vector2i cellPos, const std::unordered_set<Vector2i>& position_set);
     
-    void flush_batches();
     void clear_all();
+
 };
 
 }
