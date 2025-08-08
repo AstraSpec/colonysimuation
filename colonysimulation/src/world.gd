@@ -20,27 +20,34 @@ func start() -> void:
 	
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		var globalPos :Vector2i = get_local_mouse_position()
-		mouseCellPos = (globalPos / TILE_SIZE)
-		var cellData :CellDef = mapData.get(mouseCellPos)
-		
-		WorldInfo.update_info(mouseCellPos, cellData)
+		update_mouse_cell_pos()
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if pendingAction:
-			var action = pendingAction.action
-			var args = pendingAction.args.duplicate()
-			
-			for i in args.size():
-				if args[i] is Callable:
-					args[i] = args[i].call()
-			
-			if action and action.is_valid():
-				action.callv(args)
+		process_action()
 
 	if Input.is_action_just_pressed("esc"):
 		pendingAction = null
 		ActionHint.action_cleared()
+
+func update_mouse_cell_pos() -> void:
+	var globalPos :Vector2i = get_local_mouse_position()
+	mouseCellPos = (globalPos / TILE_SIZE)
+	var cellData :CellDef = mapData.get(mouseCellPos)
+	
+	WorldInfo.update_info(mouseCellPos, cellData)
+
+func process_action() -> void:
+	if !pendingAction: return
+	
+	var action = pendingAction.action
+	var args = pendingAction.args.duplicate()
+		
+	for i in args.size():
+		if args[i] is Callable:
+			args[i] = args[i].call()
+		
+	if action and action.is_valid():
+		action.callv(args)
 
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos
