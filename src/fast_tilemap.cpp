@@ -301,36 +301,19 @@ void FastTileMap::update_area(Vector2i cellPos, int layer, int radius) {
         }
     }
     
-    // 2. Group by tileData to avoid redundant work
-    std::unordered_map<Object*, std::vector<size_t>> tiles_by_type;
-    for (size_t idx : indices_in_area) {
-        Object* tileData = mapTiles[idx].tileData;
-        
-        // Check autotile flag once per tile type
-        if (tiles_by_type.find(tileData) == tiles_by_type.end()) {
-            if (!has_flag(tileData, "AUTOTILE")) continue;
+    // 2. Build one position set of ALL autotile positions on this layer
+    std::unordered_set<Vector2i> position_set;
+    for (const auto &t : mapTiles) {
+        if (t.layer == layer && has_flag(t.tileData, "AUTOTILE")) {
+            position_set.insert(t.cellPos);
         }
-        
-        tiles_by_type[tileData].push_back(idx);
     }
-    
-    // 3. Process each tile type once
-    for (const auto& [tileData, tile_indices] : tiles_by_type) {
-        Vector2i atlas_base = tileData->get("atlas");
-        
-        // Build position set once per tile type
-        std::unordered_set<Vector2i> position_set;
-        for (const auto &t : mapTiles) {
-            if (t.layer == layer && t.tileData == tileData) {
-                position_set.insert(t.cellPos);
-            }
-        }
-        
-        // Update variants for this tile type
-        for (size_t idx : tile_indices) {
-            auto &tref = mapTiles[idx];
-            Vector2i v = get_autotile_variant(tref.cellPos, position_set) + atlas_base;
-            tref.variant = v;
-        }
+
+    // 3. Update each tile in area that is an autotile using the global set
+    for (size_t idx : indices_in_area) {
+        auto &tref = mapTiles[idx];
+        Vector2i atlas_base = tref.tileData->get("atlas");
+        Vector2i v = get_autotile_variant(tref.cellPos, position_set) + atlas_base;
+        tref.variant = v;
     }
 }
