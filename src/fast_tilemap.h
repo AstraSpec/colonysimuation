@@ -35,6 +35,8 @@ protected:
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
     RID canvas_item;
+    std::unordered_map<int, RID> y_level_canvas_items;
+    RID get_or_create_y_canvas_item(int y_level);
     
     struct MapTile {
         Vector2i cellPos;
@@ -48,9 +50,10 @@ protected:
     std::vector<MapTile> mapTiles;
 
     static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
-    void render_tile(Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture);
+    void render_tile(RID target_canvas, Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture);
     void add_map_tile(Vector2i cellPos, int layer, Object* tileData, Vector2i variant = Vector2i(0, 0));
     void redraw_all_tiles();
+    static bool has_flag(Object* tileData, const String& FLAG);
 
 public:
     FastTileMap();

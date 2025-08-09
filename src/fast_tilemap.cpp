@@ -69,13 +69,32 @@ FastTileMap::FastTileMap() {
 }
 
 FastTileMap::~FastTileMap() {
-	if (canvas_item.is_valid()) {
-		RenderingServer::get_singleton()->free_rid(canvas_item);
-	}
+    if (canvas_item.is_valid()) {
+        RenderingServer::get_singleton()->free_rid(canvas_item);
+    }
+
+    for (auto &entry : y_level_canvas_items) {
+        if (entry.second.is_valid()) {
+            RenderingServer::get_singleton()->free_rid(entry.second);
+        }
+    }
+    y_level_canvas_items.clear();
+}
+
+RID FastTileMap::get_or_create_y_canvas_item(int y_level) {
+    auto it = y_level_canvas_items.find(y_level);
+    if (it != y_level_canvas_items.end()) {
+        return it->second;
+    }
+    RID rid = RenderingServer::get_singleton()->canvas_item_create();
+    RenderingServer::get_singleton()->canvas_item_set_parent(rid, get_canvas_item());
+    RenderingServer::get_singleton()->canvas_item_set_z_index(rid, y_level);
+    y_level_canvas_items.emplace(y_level, rid);
+    return rid;
 }
 
 void FastTileMap::set_cell(Vector2i cellPos, Object* tileData, bool redraw) {
-	int layer = tileData->get("z_index");
+	int layer = tileData->get("layer");
 	add_map_tile(cellPos, layer, tileData);
 	
 	update_area(cellPos, layer, 1);
@@ -88,7 +107,7 @@ void FastTileMap::set_cell(Vector2i cellPos, Object* tileData, bool redraw) {
 void FastTileMap::set_cells(Array cellPositions, Object* tileData, bool redraw) {
     for (int i = 0; i < cellPositions.size(); i++) {
         Vector2i cellPos = cellPositions[i];
-        int layer = tileData->get("z_index");
+        int layer = tileData->get("layer");
         add_map_tile(cellPos, layer, tileData);
     }
     
@@ -115,17 +134,17 @@ Vector2i FastTileMap::resolve_atlas(Vector2i cellPos, Object* tileData) {
     }
 }
 
-void FastTileMap::render_tile(Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture) {
+void FastTileMap::render_tile(RID target_canvas, Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture) {
     Vector2i tilePos = cellPos * TILE_SIZE;
     Rect2 src_rect(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
     Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
     
-    RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(canvas_item, dst_rect, texture->get_rid(), src_rect);
+    RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(target_canvas, dst_rect, texture->get_rid(), src_rect);
 }
 
 void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos, bool redraw) {
     Vector2i atlas = tileData->get("atlas");
-    int layer = tileData->get("z_index");
+    int layer = tileData->get("layer");
     
     std::unordered_set<Vector2i> position_set;
     position_set.reserve(totalPos.size());
@@ -157,8 +176,15 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Arra
 }
 
 void FastTileMap::clear_all() {
-	RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
-	mapTiles.clear();
+    RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
+
+    for (auto &entry : y_level_canvas_items) {
+        if (entry.second.is_valid()) {
+            RenderingServer::get_singleton()->free_rid(entry.second);
+        }
+    }
+    y_level_canvas_items.clear();
+    mapTiles.clear();
 }
 
 void FastTileMap::add_map_tile(Vector2i cellPos, int layer, Object* tileData, Vector2i variant) {
@@ -173,23 +199,32 @@ void FastTileMap::add_map_tile(Vector2i cellPos, int layer, Object* tileData, Ve
 }
 
 void FastTileMap::redraw_tiles() {
-	RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
-	
-	for (const auto& tile : mapTiles) {
-		Ref<Texture2D> texture = tile.tileData->get("texture");
-		int layer = tile.tileData->get("z_index");
-		Vector2i offset = tile.tileData->get("offset");
-		Vector2i size = tile.tileData->get("size");
-		
-		Vector2i atlas;
-		if (tile.variant != Vector2i(0, 0)) {
-			atlas = tile.variant;
-		} else {
-			atlas = resolve_atlas(tile.cellPos, tile.tileData);
-		}
-		
-		render_tile(tile.cellPos, atlas, offset, size, texture);
-	}
+    RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
+
+    for (auto &entry : y_level_canvas_items) {
+        RenderingServer::get_singleton()->canvas_item_clear(entry.second);
+    }
+    
+    for (const auto& tile : mapTiles) {
+        Ref<Texture2D> texture = tile.tileData->get("texture");
+        int layer = tile.tileData->get("layer");
+        Vector2i offset = tile.tileData->get("offset");
+        Vector2i size = tile.tileData->get("size");
+        
+        Vector2i atlas;
+        if (tile.variant != Vector2i(0, 0)) {
+            atlas = tile.variant;
+        } else {
+            atlas = resolve_atlas(tile.cellPos, tile.tileData);
+        }
+        
+        RID target = canvas_item;
+        if (has_flag(tile.tileData, "TALL")) {
+            target = get_or_create_y_canvas_item(tile.cellPos.y);
+        }
+        
+        render_tile(target, tile.cellPos, atlas, offset, size, texture);
+    }
 }
 
 void FastTileMap::clear_cell(Vector2i cellPos, int layer, bool redraw) {
@@ -205,6 +240,16 @@ void FastTileMap::clear_cell(Vector2i cellPos, int layer, bool redraw) {
 	if (redraw) {
 	    redraw_tiles();
 	}
+}
+
+bool FastTileMap::has_flag(Object* tileData, const String& FLAG) {
+    Array flags = tileData->get("flags");
+    for (int i = 0; i < flags.size(); i++) {
+        if (flags[i] == FLAG) {
+            return true;
+        }
+    }
+    return false;
 }
 
 Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, const std::unordered_set<Vector2i>& position_set) {
@@ -263,15 +308,7 @@ void FastTileMap::update_area(Vector2i cellPos, int layer, int radius) {
         
         // Check autotile flag once per tile type
         if (tiles_by_type.find(tileData) == tiles_by_type.end()) {
-            Array flags = tileData->get("flags");
-            bool is_autotile = false;
-            for (int i = 0; i < flags.size(); i++) {
-                if (String(flags[i]) == "AUTOTILE") {
-                    is_autotile = true;
-                    break;
-                }
-            }
-            if (!is_autotile) continue;
+            if (!has_flag(tileData, "AUTOTILE")) continue;
         }
         
         tiles_by_type[tileData].push_back(idx);

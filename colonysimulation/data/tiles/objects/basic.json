@@ -11,7 +11,7 @@
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": ["WORLDSPAWN", "TALL"]
   },
   {
 	"id": "tall_grass1",
@@ -21,7 +21,7 @@
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": ["WORLDSPAWN", "TALL"]
   },
   {
 	"id": "tall_grass2",
@@ -31,7 +31,7 @@
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": ["WORLDSPAWN", "TALL"]
   },
   {
 	"id": "flower",
@@ -44,6 +44,6 @@
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": ["WORLDSPAWN", "TALL"]
   }
 ] 

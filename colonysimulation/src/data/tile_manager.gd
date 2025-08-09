@@ -22,7 +22,7 @@ func _init_tiledata() -> void:
 		tile.texture = get_texture(element["texture"])
 		tile.size = get_vector2(element, "size", tile)
 		tile.offset = get_vector2(element, "offset", tile)
-		tile.z_index = get_z_index(element["type"])
+		tile.layer = get_layer(element["type"])
 		tile.flags = element.get("flags", [])
 		
 		if element.has("atlas"):
@@ -50,5 +50,5 @@ func get_vector2(element :Dictionary, key :String, tile :TileDef) -> Vector2i:
 func get_texture(texture :String) -> CompressedTexture2D:
 	return textures[texture]
 
-func get_z_index(type :String) -> int:
+func get_layer(type :String) -> int:
 	return TILE_LAYERS.find(type)

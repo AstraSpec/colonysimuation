@@ -9,5 +9,5 @@ var size :Vector2i = Vector2i.ONE
 var offset :Vector2i = Vector2i.ZERO
 
 var texture :CompressedTexture2D
-var z_index :int
+var layer :int
 var flags :Array

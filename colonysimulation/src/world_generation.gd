@@ -124,19 +124,19 @@ func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
 	for cellPos in mapData:
 		var cell :CellDef = mapData[cellPos]
 		for layer in grouped:
-			var tile :TileDef = cell.tiles[layer]
+			var tileData :TileDef = cell.tiles[layer]
 			
-			if tile == null:
+			if tileData == null:
 				continue
 			
-			if not grouped[layer].has(tile):
-				grouped[layer][tile] = []
+			if not grouped[layer].has(tileData):
+				grouped[layer][tileData] = []
 			
-			grouped[layer][tile].append(cellPos)
+			grouped[layer][tileData].append(cellPos)
 	
 	return grouped
 
 func get_total_autotile_cells(wallDb :Dictionary) -> Array:
 	var total :Array = []
-	for tile in wallDb: total.append_array(wallDb[tile])
+	for tileData in wallDb: total.append_array(wallDb[tileData])
 	return total
