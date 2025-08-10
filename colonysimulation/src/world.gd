@@ -6,7 +6,7 @@ extends Node2D
 @export var WorldInfo :Label
 @export var ActionHint :Control
 
-var TILE_SIZE :int = Constants.get_tile_size()
+static var TILE_SIZE :int = Constants.get_tile_size()
 
 var mapData :Dictionary
 var mouseCellPos :Vector2i

@@ -1,7 +1,7 @@
 extends TextureRect
 
-var WORLD_SIZE :int = Constants.get_world_size()
-var TILE_SIZE :int = Constants.get_tile_size()
+static var WORLD_SIZE :int = Constants.get_world_size()
+static var TILE_SIZE :int = Constants.get_tile_size()
 
 var terrainImage: Image
 var atlasTexture: Texture2D

@@ -1,9 +1,9 @@
 extends Region
 
 const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.RIGHT]
-var WORLD_SIZE :int = Constants.get_world_size()
-var CHUNK_SIZE :int = Constants.get_chunk_size()
-var TILE_LAYERS :Array = CellDef.get_tile_layers()
+static var WORLD_SIZE :int = Constants.get_world_size()
+static var CHUNK_SIZE :int = Constants.get_chunk_size()
+static var TILE_LAYERS :Array = CellDef.get_tile_layers()
 
 var regionDb :Dictionary
 var totalRegions :int = 0

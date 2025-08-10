@@ -1,6 +1,6 @@
 extends Node2D
 
-var TILE_SIZE :int = Constants.get_tile_size()
+static var TILE_SIZE :int = Constants.get_tile_size()
 
 var cellPos :Vector2i = Vector2i.ZERO
 

@@ -1,7 +1,7 @@
 extends Label
 
-var WORLD_SIZE :int = Constants.get_world_size()
-var TILE_SIZE :int = Constants.get_tile_size()
+static var WORLD_SIZE :int = Constants.get_world_size()
+static var TILE_SIZE :int = Constants.get_tile_size()
 
 func update_info(cellPos :Vector2i, cellData :CellDef) -> void:
 	if !cellData:

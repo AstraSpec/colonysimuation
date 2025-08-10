@@ -9,9 +9,9 @@ extends Node2D
 @export var Tilemap :FastTileMap
 @export var Terrain :TextureRect
 
-var WORLD_SIZE :int = Constants.get_world_size()
-var TILE_SIZE :int = Constants.get_tile_size()
-var CHUNK_SIZE :int = Constants.get_chunk_size()
+static var WORLD_SIZE :int = Constants.get_world_size()
+static var TILE_SIZE :int = Constants.get_tile_size()
+static var CHUNK_SIZE :int = Constants.get_chunk_size()
 
 const TERRAIN_THRESHOLD :float = 0.27
 const CLIFF_THRESHOLD :float = 0.3
