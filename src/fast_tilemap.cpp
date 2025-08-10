@@ -96,10 +96,9 @@ RID FastTileMap::get_or_create_y_canvas_item(int y_level) {
 void FastTileMap::set_cell(Vector2i cellPos, Object* tileData, bool redraw) {
 	int layer = tileData->get("layer");
 	add_map_tile(cellPos, layer, tileData);
-	
-	update_area(cellPos, layer, 1);
-	
+    
 	if (redraw) {
+		update_area(cellPos, layer, 1);
 		redraw_tiles();
 	}
 }
@@ -235,10 +234,9 @@ void FastTileMap::clear_cell(Vector2i cellPos, int layer, bool redraw) {
 		}
 	}
 	
-	update_area(cellPos, layer, 1);
-	
 	if (redraw) {
-	    redraw_tiles();
+		update_area(cellPos, layer, 1);
+		redraw_tiles();
 	}
 }
 
