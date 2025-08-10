@@ -3,6 +3,7 @@ extends Node2D
 @export var WorldGeneration :Node2D
 @export var Regions :Node2D
 @export var Entities :Node2D
+@export var Fastpathfinding :FastPathfinding
 @export var WorldInfo :Label
 @export var ActionHint :Control
 
@@ -16,6 +17,12 @@ var pendingAction :ActionDef
 func start() -> void:
 	mapData = WorldGeneration.generate_world()
 	Regions.generate_regions(mapData)
+	
+	var timer1 = Time.get_ticks_msec()
+	Fastpathfinding.update_pathfinding(mapData)
+	var timer2 = Time.get_ticks_msec()
+	print(timer2-timer1)
+	
 	Entities.summon_entity(Vector2i(126, 126))
 	
 func _unhandled_input(event: InputEvent) -> void:
@@ -23,11 +30,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		update_mouse_cell_pos()
 	
 	if Input.is_action_just_pressed("left_click"):
-		process_action()
+		if Entities.selected:
+			Entities.selected.move(mouseCellPos, Fastpathfinding)
+		else:
+			process_action()
 
 	if Input.is_action_just_pressed("esc") or Input.is_action_just_pressed("right_click"):
 		pendingAction = null
 		ActionHint.action_cleared()
+		Entities.update_selected(null)
 
 func update_mouse_cell_pos() -> void:
 	var globalPos :Vector2i = get_local_mouse_position()

@@ -31,11 +31,12 @@ UI = NodePath("UI")
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
-[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "WorldInfo", "ActionHint")]
+[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "Fastpathfinding", "WorldInfo", "ActionHint")]
 script = ExtResource("3_xaeo1")
 WorldGeneration = NodePath("WorldGeneration")
 Regions = NodePath("Regions")
 Entities = NodePath("Entities")
+Fastpathfinding = NodePath("FastPathfinding")
 WorldInfo = NodePath("../UI/WorldInfo")
 ActionHint = NodePath("../UI/ActionHint")
 
@@ -55,6 +56,8 @@ Terrain = NodePath("../FastTerrain")
 
 [node name="Entities" type="Node2D" parent="World"]
 script = ExtResource("8_mq6vu")
+
+[node name="FastPathfinding" type="FastPathfinding" parent="World"]
 
 [node name="UI" type="CanvasLayer" parent="." node_paths=PackedStringArray("DebugMenu")]
 script = ExtResource("9_bfo0p")
@@ -96,7 +99,7 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities", "FastTilemap", "ActionHint")]
+[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities", "ActionHint")]
 visible = false
 layout_mode = 3
 anchor_left = 0.0208333
@@ -110,7 +113,6 @@ script = ExtResource("12_t1uuq")
 ButtonContainer = NodePath("MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer")
 World = NodePath("../../World")
 Entities = NodePath("../../World/Entities")
-FastTilemap = NodePath("../../World/FastTileMap")
 ActionHint = NodePath("../ActionHint")
 metadata/_edit_use_anchors_ = true
 

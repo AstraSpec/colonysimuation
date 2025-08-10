@@ -11,10 +11,9 @@ func _ready() -> void:
 
 #TODO: 
 # precompute flags bitmask
-# z-levels
 
 # - entities
-# pathfinding
 # path searching
+# spawned entities are not auto clicked
 
 # - jobs

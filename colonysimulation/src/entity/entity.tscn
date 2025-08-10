@@ -1,10 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://cdlw0dlxtno17"]
+[gd_scene load_steps=4 format=3 uid="uid://cdlw0dlxtno17"]
 
 [ext_resource type="Script" path="res://src/entity/entity.gd" id="1_fohjf"]
 [ext_resource type="Texture2D" uid="uid://cx5ehxtgll2ib" path="res://assets/entities/colonist.png" id="1_fwi2m"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ufahe"]
+size = Vector2(32, 32)
+
 [node name="Entity" type="Node2D"]
 script = ExtResource("1_fohjf")
+
+[node name="EntityArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EntityArea"]
+position = Vector2(8, 1.5)
+shape = SubResource("RectangleShape2D_ufahe")
 
 [node name="Body" type="Sprite2D" parent="."]
 texture = ExtResource("1_fwi2m")
@@ -19,3 +28,5 @@ centered = false
 offset = Vector2(0, -12)
 region_enabled = true
 region_rect = Rect2(16, 0, 16, 16)
+
+[connection signal="input_event" from="EntityArea" to="." method="_on_entity_area_input_event"]
