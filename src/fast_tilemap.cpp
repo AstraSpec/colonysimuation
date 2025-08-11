@@ -65,15 +65,9 @@ void FastTileMap::_bind_methods() {
 }
 
 FastTileMap::FastTileMap() {
-	canvas_item = RenderingServer::get_singleton()->canvas_item_create();
-	RenderingServer::get_singleton()->canvas_item_set_parent(canvas_item, get_canvas_item());
 }
 
 FastTileMap::~FastTileMap() {
-    if (canvas_item.is_valid()) {
-        RenderingServer::get_singleton()->free_rid(canvas_item);
-    }
-
     for (auto &entry : y_level_canvas_items) {
         if (entry.second.is_valid()) {
             RenderingServer::get_singleton()->free_rid(entry.second);
@@ -100,19 +94,19 @@ void FastTileMap::set_cell(Vector2i cellPos, Object* tileData, bool redraw) {
     
 	if (redraw) {
 		update_area(cellPos, layer, 1);
-		redraw_tiles();
+		redraw_affected_y_level(cellPos.y, 0);
 	}
 }
 
 void FastTileMap::set_cells(Array cellPositions, Object* tileData, bool redraw) {
+    int layer = tileData->get("layer");
     for (int i = 0; i < cellPositions.size(); i++) {
         Vector2i cellPos = cellPositions[i];
-        int layer = tileData->get("layer");
         add_map_tile(cellPos, layer, tileData);
     }
     
-    if (redraw) {
-        redraw_tiles();
+    if (redraw && cellPositions.size() > 0) {
+        redraw_affected_y_levels(cellPositions, 1);
     }
 }
 
@@ -170,14 +164,12 @@ void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Arra
         add_map_tile(cellPos, layer, tileData, variant);
 	}
 	
-	if (redraw) {
-	    redraw_tiles();
+	if (redraw && cellPositions.size() > 0) {
+	    redraw_affected_y_levels(cellPositions, 1);
 	}
 }
 
 void FastTileMap::clear_all() {
-    RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
-
     for (auto &entry : y_level_canvas_items) {
         if (entry.second.is_valid()) {
             RenderingServer::get_singleton()->free_rid(entry.second);
@@ -192,12 +184,11 @@ void FastTileMap::add_map_tile(Vector2i cellPos, int layer, Object* tileData, Ve
 }
 
 void FastTileMap::redraw_tiles() {
-    RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
-
     for (auto &entry : y_level_canvas_items) {
         RenderingServer::get_singleton()->canvas_item_clear(entry.second);
     }
     
+    // Redraw all tiles to their respective y-level canvas items
     for (const auto& [pos, tile] : mapTiles) {
         Ref<Texture2D> texture = tile.tileData->get("texture");
         int layer = tile.tileData->get("layer");
@@ -211,12 +202,59 @@ void FastTileMap::redraw_tiles() {
             atlas = resolve_atlas(tile.cellPos, tile.tileData);
         }
         
-        RID target = canvas_item;
-        if (has_flag(tile.tileData, "TALL")) {
-            target = get_or_create_y_canvas_item(tile.cellPos.y);
-        }
+        RID target = get_or_create_y_canvas_item(tile.cellPos.y);
         
         render_tile(target, tile.cellPos, atlas, offset, size, texture);
+    }
+}
+
+void FastTileMap::redraw_affected_y_level(int y_level, int border) {
+    int min_y = y_level - border;
+    int max_y = y_level + border;
+    
+    for (int y = min_y; y <= max_y; ++y) {
+        auto it = y_level_canvas_items.find(y);
+        if (it != y_level_canvas_items.end()) {
+            RenderingServer::get_singleton()->canvas_item_clear(it->second);
+        }
+    }
+    
+    for (const auto& [pos, tile] : mapTiles) {
+        if (tile.cellPos.y >= min_y && tile.cellPos.y <= max_y) {
+            Ref<Texture2D> texture = tile.tileData->get("texture");
+            Vector2i offset = tile.tileData->get("offset");
+            Vector2i size = tile.tileData->get("size");
+            
+            Vector2i atlas;
+            if (tile.variant != Vector2i(0, 0)) {
+                atlas = tile.variant;
+            } else {
+                atlas = resolve_atlas(tile.cellPos, tile.tileData);
+            }
+            
+            RID target = get_or_create_y_canvas_item(tile.cellPos.y);
+            render_tile(target, tile.cellPos, atlas, offset, size, texture);
+        }
+    }
+}
+
+void FastTileMap::redraw_affected_y_levels(const Array& cellPositions, int border) {
+    if (cellPositions.size() == 0) return;
+    
+    int min_y = INT_MAX;
+    int max_y = INT_MIN;
+    
+    for (int i = 0; i < cellPositions.size(); i++) {
+        Vector2i cellPos = cellPositions[i];
+        min_y = Math::min(min_y, cellPos.y);
+        max_y = Math::max(max_y, cellPos.y);
+    }
+    
+    min_y -= border;
+    max_y += border;
+    
+    for (int y = min_y; y <= max_y; ++y) {
+        redraw_affected_y_level(y, 0);
     }
 }
 
@@ -228,7 +266,7 @@ void FastTileMap::clear_cell(Vector2i cellPos, int layer, bool redraw) {
 	
 	if (redraw) {
 		update_area(cellPos, layer, 1);
-		redraw_tiles();
+		redraw_affected_y_level(cellPos.y, 0);
 	}
 }
 

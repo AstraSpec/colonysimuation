@@ -34,7 +34,6 @@ protected:
     static constexpr int TILE_SIZE = Constants::TILE_SIZE;
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
-    RID canvas_item;
     std::unordered_map<int, RID> y_level_canvas_items;
     RID get_or_create_y_canvas_item(int y_level);
     
@@ -67,6 +66,8 @@ public:
     void clear_cell(Vector2i cellPos, int layer, bool redraw = true);
     void clear_all();
     void redraw_tiles();
+    void redraw_affected_y_level(int y_level, int border = 0);
+    void redraw_affected_y_levels(const Array& cellPositions, int border = 0);
 
     // Recompute autotile variants
     void update_area(Vector2i cellPos, int layer, int radius = 1);
