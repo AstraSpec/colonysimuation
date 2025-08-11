@@ -47,7 +47,7 @@ protected:
         MapTile(Vector2i pos, int l, Object* data) : cellPos(pos), layer(l), tileData(data), variant(0, 0) {}
         MapTile(Vector2i pos, int l, Object* data, Vector2i v) : cellPos(pos), layer(l), tileData(data), variant(v) {}
     };
-    std::vector<MapTile> mapTiles;
+    std::unordered_map<Vector2i, MapTile> mapTiles;
 
     static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
     void render_tile(RID target_canvas, Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture);

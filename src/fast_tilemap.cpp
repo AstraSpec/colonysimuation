@@ -1,5 +1,6 @@
 #include "fast_tilemap.h"
 #include <algorithm>
+#include <godot_cpp/classes/time.hpp>
 
 using namespace godot;
 
@@ -187,14 +188,7 @@ void FastTileMap::clear_all() {
 }
 
 void FastTileMap::add_map_tile(Vector2i cellPos, int layer, Object* tileData, Vector2i variant) {
-	for (auto it = mapTiles.begin(); it != mapTiles.end(); ++it) {
-		if (it->cellPos == cellPos && it->layer == layer) {
-			mapTiles.erase(it);
-			break;
-		}
-	}
-	
-	mapTiles.emplace_back(cellPos, layer, tileData, variant);
+	mapTiles.insert_or_assign(cellPos, MapTile(cellPos, layer, tileData, variant));
 }
 
 void FastTileMap::redraw_tiles() {
@@ -204,7 +198,7 @@ void FastTileMap::redraw_tiles() {
         RenderingServer::get_singleton()->canvas_item_clear(entry.second);
     }
     
-    for (const auto& tile : mapTiles) {
+    for (const auto& [pos, tile] : mapTiles) {
         Ref<Texture2D> texture = tile.tileData->get("texture");
         int layer = tile.tileData->get("layer");
         Vector2i offset = tile.tileData->get("offset");
@@ -227,11 +221,9 @@ void FastTileMap::redraw_tiles() {
 }
 
 void FastTileMap::clear_cell(Vector2i cellPos, int layer, bool redraw) {
-	for (auto it = mapTiles.begin(); it != mapTiles.end(); ++it) {
-		if (it->cellPos == cellPos && it->layer == layer) {
-			mapTiles.erase(it);
-			break;
-		}
+	auto it = mapTiles.find(cellPos);
+	if (it != mapTiles.end() && it->second.layer == layer) {
+		mapTiles.erase(it);
 	}
 	
 	if (redraw) {
@@ -287,31 +279,46 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, const std::unordere
 
 // Recalculates autotiling in area
 void FastTileMap::update_area(Vector2i cellPos, int layer, int radius) {
+    
     // 1. Find tiles in area
-    std::vector<size_t> indices_in_area;
-    indices_in_area.reserve(mapTiles.size());
-    for (size_t i = 0; i < mapTiles.size(); ++i) {
-        const auto &t = mapTiles[i];
-        if (t.layer != layer) continue;
-        if (Math::abs(t.cellPos.x - cellPos.x) <= radius && 
-            Math::abs(t.cellPos.y - cellPos.y) <= radius) {
-            indices_in_area.push_back(i);
+    std::vector<Vector2i> tiles_in_area;
+    for (int x = cellPos.x - radius; x <= cellPos.x + radius; ++x) {
+        for (int y = cellPos.y - radius; y <= cellPos.y + radius; ++y) {
+            Vector2i pos(x, y);
+            auto it = mapTiles.find(pos);
+            if (it != mapTiles.end()) {
+                const auto& tile = it->second;
+                if (tile.layer == layer) {
+                    tiles_in_area.push_back(pos);
+                }
+            }
         }
     }
     
-    // 2. Build one position set of ALL autotile positions on this layer
+    // 2. Build position set of autotile positions in area + border
     std::unordered_set<Vector2i> position_set;
-    for (const auto &t : mapTiles) {
-        if (t.layer == layer && has_flag(t.tileData, "AUTOTILE")) {
-            position_set.insert(t.cellPos);
+    for (int x = cellPos.x - radius - 1; x <= cellPos.x + radius + 1; ++x) {
+        for (int y = cellPos.y - radius - 1; y <= cellPos.y + radius + 1; ++y) {
+            Vector2i pos(x, y);
+            auto it = mapTiles.find(pos);
+            if (it != mapTiles.end()) {
+                if (it->second.layer == layer && has_flag(it->second.tileData, "AUTOTILE")) {
+                    position_set.insert(pos);
+                }
+            }
         }
     }
-
-    // 3. Update each tile in area that is an autotile using the global set
-    for (size_t idx : indices_in_area) {
-        auto &tref = mapTiles[idx];
-        Vector2i atlas_base = tref.tileData->get("atlas");
-        Vector2i v = get_autotile_variant(tref.cellPos, position_set) + atlas_base;
-        tref.variant = v;
+    
+    // 3. Update each tile in area that is an autotile
+    for (const Vector2i& pos : tiles_in_area) {
+        auto it = mapTiles.find(pos);
+        if (it != mapTiles.end()) {
+            auto& tile = it->second;
+            if (has_flag(tile.tileData, "AUTOTILE")) {
+                Vector2i atlas_base = tile.tileData->get("atlas");
+                Vector2i v = get_autotile_variant(tile.cellPos, position_set) + atlas_base;
+                tile.variant = v;
+            }
+        }
     }
 }
