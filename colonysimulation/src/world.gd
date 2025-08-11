@@ -29,13 +29,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
 	
-	if Input.is_action_just_pressed("left_click"):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if Entities.selected:
 			Entities.selected.move(mouseCellPos, Fastpathfinding)
 		else:
 			process_action()
+		
+		get_viewport().set_input_as_handled()
 
-	if Input.is_action_just_pressed("esc") or Input.is_action_just_pressed("right_click"):
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE or \
+			event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		pendingAction = null
 		ActionHint.action_cleared()
 		Entities.update_selected(null)

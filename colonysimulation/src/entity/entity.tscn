@@ -10,6 +10,8 @@ size = Vector2(32, 32)
 script = ExtResource("1_fohjf")
 
 [node name="EntityArea" type="Area2D" parent="."]
+monitoring = false
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EntityArea"]
 position = Vector2(8, 1.5)

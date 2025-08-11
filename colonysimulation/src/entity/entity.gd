@@ -1,6 +1,7 @@
 extends Node2D
 
 @onready var Entities :Node2D = get_parent()
+@onready var Area :CollisionShape2D = $EntityArea/CollisionShape2D
 
 static var TILE_SIZE :int = Constants.get_tile_size()
 
@@ -26,8 +27,8 @@ func process_pathing(delta :float) -> void:
 		else:
 			position += (pathPos - position).normalized() * speed * delta
 
-func _on_entity_area_input_event(_viewport: Node, _event: InputEvent, _shape_idx: int) -> void:
-	if Input.is_action_just_pressed("left_click"):
+func _on_entity_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		Entities.update_selected(self)
 
 func move(mouseCellPos :Vector2i, Fastpathfinding) -> void:
