@@ -2,6 +2,8 @@
 #define COLONYSIM_CONSTANTS_H
 
 #include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/variant/array.hpp>
+#include <godot_cpp/variant/string.hpp>
 
 namespace godot {
 
@@ -19,9 +21,13 @@ public:
     static const int TILE_SIZE = 16;
     static const int CHUNK_SIZE = 16;
     
+    static const uint32_t AUTOTILE_FLAG = 1 << 0;
+    static const uint32_t WORLDSPAWN_FLAG = 1 << 1;
+    
     static int get_world_size();
     static int get_tile_size();
     static int get_chunk_size();
+    static uint32_t flags_to_bits(Array flags);
 };
 
 }

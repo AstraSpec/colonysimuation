@@ -15,12 +15,12 @@ var mouseCellPos :Vector2i
 var pendingAction :ActionDef
 
 func start() -> void:
-	mapData = WorldGeneration.generate_world()
-	Regions.generate_regions(mapData)
-	
 	var timer1 = Time.get_ticks_msec()
-	Fastpathfinding.update_pathfinding(mapData)
+	mapData = WorldGeneration.generate_world()
 	var timer2 = Time.get_ticks_msec()
+	Regions.generate_regions(mapData)
+	Fastpathfinding.update_pathfinding(mapData)
+	
 	print(timer2-timer1)
 	
 	Entities.summon_entity(Vector2i(126, 126))

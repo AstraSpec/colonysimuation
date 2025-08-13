@@ -23,7 +23,7 @@ func _init_tiledata() -> void:
 		tile.size = get_vector2(element, "size", tile)
 		tile.offset = get_vector2(element, "offset", tile)
 		tile.layer = get_layer(element["type"])
-		tile.flags = element.get("flags", [])
+		tile.flags = Constants.flags_to_bits(element.get("flags", []))
 		
 		if element.has("atlas"):
 			tile.atlas = get_vector2(element, "atlas", tile)

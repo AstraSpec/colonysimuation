@@ -36,41 +36,19 @@ protected:
     
     std::unordered_map<int, RID> y_level_canvas_items;
     RID get_or_create_y_canvas_item(int y_level);
-    
-    struct MapTile {
-        Vector2i cellPos;
-        int layer;
-        Object* tileData;
-        Vector2i variant; // autotile
-        
-        MapTile(Vector2i pos, int l, Object* data) : cellPos(pos), layer(l), tileData(data), variant(0, 0) {}
-        MapTile(Vector2i pos, int l, Object* data, Vector2i v) : cellPos(pos), layer(l), tileData(data), variant(v) {}
-    };
-    std::unordered_map<Vector2i, MapTile> mapTiles;
+
+    std::unordered_set<Vector2i> autotile_positions;
+    void set_autotile_positions(Dictionary mapData);
 
     static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
     void render_tile(RID target_canvas, Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture);
-    void add_map_tile(Vector2i cellPos, int layer, Object* tileData, Vector2i variant = Vector2i(0, 0));
-    void redraw_all_tiles();
-    static bool has_flag(Object* tileData, const String& FLAG);
 
 public:
     FastTileMap();
     ~FastTileMap();
 
-    void set_cell(Vector2i cellPos, Object* tileData, bool redraw_tiles = true);
-    void set_cells(Array cellPositions, Object* tileData, bool redraw = true);
-    void set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos, bool redraw = true);
-    Vector2i get_autotile_variant(Vector2i cellPos, const std::unordered_set<Vector2i>& position_set);
-    
-    void clear_cell(Vector2i cellPos, int layer, bool redraw = true);
-    void clear_all();
-    void redraw_tiles();
-    void redraw_affected_y_level(int y_level, int border = 0);
-    void redraw_affected_y_levels(const Array& cellPositions, int border = 0);
-
-    // Recompute autotile variants
-    void update_area(Vector2i cellPos, int layer, int radius = 1);
+    Vector2i get_autotile_variant(Vector2i cellPos);
+    void redraw_tiles(Dictionary mapData);
 };
 
 }

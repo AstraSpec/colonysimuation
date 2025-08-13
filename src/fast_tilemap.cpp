@@ -55,13 +55,7 @@ const std::unordered_map<int, Vector2i> FastTileMap::autotile_variant_map = {
 };
 
 void FastTileMap::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_cell", "cellPos", "tileData", "redraw_tiles"), &FastTileMap::set_cell, DEFVAL(true));
-	ClassDB::bind_method(D_METHOD("set_cells", "cellPositions", "tileData", "redraw_tiles"), &FastTileMap::set_cells, DEFVAL(true));
-	ClassDB::bind_method(D_METHOD("set_cells_autotile", "cellPositions", "tileData", "totalPos", "redraw_tiles"), &FastTileMap::set_cells_autotile, DEFVAL(true));
-	ClassDB::bind_method(D_METHOD("clear_cell", "cellPos", "layer", "redraw_tiles"), &FastTileMap::clear_cell, DEFVAL(true));
-	ClassDB::bind_method(D_METHOD("clear_all"), &FastTileMap::clear_all);
-	ClassDB::bind_method(D_METHOD("redraw_tiles"), &FastTileMap::redraw_tiles);
-	ClassDB::bind_method(D_METHOD("update_area", "cellPos", "layer", "radius"), &FastTileMap::update_area, DEFVAL(1));
+	ClassDB::bind_method(D_METHOD("redraw_tiles", "mapData"), &FastTileMap::redraw_tiles);
 }
 
 FastTileMap::FastTileMap() {
@@ -88,28 +82,6 @@ RID FastTileMap::get_or_create_y_canvas_item(int y_level) {
     return rid;
 }
 
-void FastTileMap::set_cell(Vector2i cellPos, Object* tileData, bool redraw) {
-	int layer = tileData->get("layer");
-	add_map_tile(cellPos, layer, tileData);
-    
-	if (redraw) {
-		update_area(cellPos, layer, 1);
-		redraw_affected_y_level(cellPos.y, 0);
-	}
-}
-
-void FastTileMap::set_cells(Array cellPositions, Object* tileData, bool redraw) {
-    int layer = tileData->get("layer");
-    for (int i = 0; i < cellPositions.size(); i++) {
-        Vector2i cellPos = cellPositions[i];
-        add_map_tile(cellPos, layer, tileData);
-    }
-    
-    if (redraw && cellPositions.size() > 0) {
-        redraw_affected_y_levels(cellPositions, 1);
-    }
-}
-
 Vector2i FastTileMap::resolve_atlas(Vector2i cellPos, Object* tileData) {
     Variant atlas_data = tileData->get("atlas");
     
@@ -123,7 +95,8 @@ Vector2i FastTileMap::resolve_atlas(Vector2i cellPos, Object* tileData) {
         int variant_index = hash % variant_count;
         
         return variants[variant_index];
-    } else {
+    }
+    else {
         return atlas_data;
     }
 }
@@ -132,155 +105,74 @@ void FastTileMap::render_tile(RID target_canvas, Vector2i cellPos, Vector2i atla
     Vector2i tilePos = cellPos * TILE_SIZE;
     Rect2 src_rect(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
     Rect2 dst_rect(tilePos.x + offset.x * TILE_SIZE, tilePos.y + offset.y * TILE_SIZE, size.x * TILE_SIZE, size.y * TILE_SIZE);
-    
+
     RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(target_canvas, dst_rect, texture->get_rid(), src_rect);
 }
 
-void FastTileMap::set_cells_autotile(Array cellPositions, Object* tileData, Array totalPos, bool redraw) {
-    Vector2i atlas = tileData->get("atlas");
-    int layer = tileData->get("layer");
-    
-    std::unordered_set<Vector2i> position_set;
-    position_set.reserve(totalPos.size());
-    for (int i = 0; i < totalPos.size(); i++) {
-        position_set.insert(totalPos[i]);
-    }
-
-    std::unordered_map<Vector2i, Vector2i> variant_cache;
-    variant_cache.reserve(cellPositions.size());
-
-    for (int i = 0; i < cellPositions.size(); i++) {
-        Vector2i cellPos = cellPositions[i];
+void FastTileMap::set_autotile_positions(Dictionary mapData) {
+    // Build position set of all AUTOTILE tiles for autotile variant calculation
+    Array keys = mapData.keys();
+    for (int i = 0; i < keys.size(); i++) {
+        Vector2i pos = keys[i];
+        Object* cellData = mapData[pos];
+        Dictionary tiles = cellData->get("tiles");
+        Array tile_keys = tiles.keys();
         
-        Vector2i variant;
-        auto cache_it = variant_cache.find(cellPos);
-        if (cache_it != variant_cache.end()) {
-            variant = cache_it->second;
-        } else {
-            variant = get_autotile_variant(cellPos, position_set) + atlas;
-            variant_cache[cellPos] = variant;
-        }
-        
-        add_map_tile(cellPos, layer, tileData, variant);
-	}
-	
-	if (redraw && cellPositions.size() > 0) {
-	    redraw_affected_y_levels(cellPositions, 1);
-	}
-}
-
-void FastTileMap::clear_all() {
-    for (auto &entry : y_level_canvas_items) {
-        if (entry.second.is_valid()) {
-            RenderingServer::get_singleton()->free_rid(entry.second);
+        for (int j = 0; j < tile_keys.size(); j++) {
+            String layer_key = tile_keys[j];
+            Object* tileData = tiles[layer_key];
+            if (tileData) {
+                uint32_t flags = tileData->get("flags");
+                if (flags & Constants::AUTOTILE_FLAG) {
+                    autotile_positions.insert(pos);
+                }
+            }
         }
     }
-    y_level_canvas_items.clear();
-    mapTiles.clear();
 }
 
-void FastTileMap::add_map_tile(Vector2i cellPos, int layer, Object* tileData, Vector2i variant) {
-	mapTiles.insert_or_assign(cellPos, MapTile(cellPos, layer, tileData, variant));
-}
-
-void FastTileMap::redraw_tiles() {
+void FastTileMap::redraw_tiles(Dictionary mapData) {
     for (auto &entry : y_level_canvas_items) {
         RenderingServer::get_singleton()->canvas_item_clear(entry.second);
     }
     
-    // Redraw all tiles to their respective y-level canvas items
-    for (const auto& [pos, tile] : mapTiles) {
-        Ref<Texture2D> texture = tile.tileData->get("texture");
-        int layer = tile.tileData->get("layer");
-        Vector2i offset = tile.tileData->get("offset");
-        Vector2i size = tile.tileData->get("size");
-        
-        Vector2i atlas;
-        if (tile.variant != Vector2i(0, 0)) {
-            atlas = tile.variant;
-        } else {
-            atlas = resolve_atlas(tile.cellPos, tile.tileData);
-        }
-        
-        RID target = get_or_create_y_canvas_item(tile.cellPos.y);
-        
-        render_tile(target, tile.cellPos, atlas, offset, size, texture);
-    }
-}
+    set_autotile_positions(mapData);
 
-void FastTileMap::redraw_affected_y_level(int y_level, int border) {
-    int min_y = y_level - border;
-    int max_y = y_level + border;
-    
-    for (int y = min_y; y <= max_y; ++y) {
-        auto it = y_level_canvas_items.find(y);
-        if (it != y_level_canvas_items.end()) {
-            RenderingServer::get_singleton()->canvas_item_clear(it->second);
-        }
-    }
-    
-    for (const auto& [pos, tile] : mapTiles) {
-        if (tile.cellPos.y >= min_y && tile.cellPos.y <= max_y) {
-            Ref<Texture2D> texture = tile.tileData->get("texture");
-            Vector2i offset = tile.tileData->get("offset");
-            Vector2i size = tile.tileData->get("size");
+    // Redraw all tiles to their respective y-level canvas items
+    Array keys = mapData.keys();
+    for (int i = 0; i < keys.size(); i++) {
+        Vector2i cellPos = keys[i];
+        Object* cellData = mapData[cellPos];
+        
+        // Get tiles dictionary from the cell using get() method
+        Dictionary tiles = cellData->get("tiles");
+        Array tile_keys = tiles.keys();
+        
+        // Iterate through each layer in the cell
+        for (int j = 1; j < tile_keys.size(); j++) {
+            String layer_key = tile_keys[j];
+            Object* tileData = tiles[layer_key];
+
+            if (!tileData) continue;
             
-            Vector2i atlas;
-            if (tile.variant != Vector2i(0, 0)) {
-                atlas = tile.variant;
-            } else {
-                atlas = resolve_atlas(tile.cellPos, tile.tileData);
+            Ref<Texture2D> texture = tileData->get("texture");
+            int layer = tileData->get("layer");
+            Vector2i offset = tileData->get("offset");
+            Vector2i size = tileData->get("size");
+            
+            Vector2i atlas = resolve_atlas(cellPos, tileData);
+            uint32_t flags = tileData->get("flags");
+            if (flags & Constants::AUTOTILE_FLAG) {
+                atlas = get_autotile_variant(cellPos) + atlas;
             }
             
-            RID target = get_or_create_y_canvas_item(tile.cellPos.y);
-            render_tile(target, tile.cellPos, atlas, offset, size, texture);
+            RID target = get_or_create_y_canvas_item(cellPos.y);
+            render_tile(target, cellPos, atlas, offset, size, texture);
         }
     }
 }
 
-void FastTileMap::redraw_affected_y_levels(const Array& cellPositions, int border) {
-    if (cellPositions.size() == 0) return;
-    
-    int min_y = INT_MAX;
-    int max_y = INT_MIN;
-    
-    for (int i = 0; i < cellPositions.size(); i++) {
-        Vector2i cellPos = cellPositions[i];
-        min_y = Math::min(min_y, cellPos.y);
-        max_y = Math::max(max_y, cellPos.y);
-    }
-    
-    min_y -= border;
-    max_y += border;
-    
-    for (int y = min_y; y <= max_y; ++y) {
-        redraw_affected_y_level(y, 0);
-    }
-}
-
-void FastTileMap::clear_cell(Vector2i cellPos, int layer, bool redraw) {
-	auto it = mapTiles.find(cellPos);
-	if (it != mapTiles.end() && it->second.layer == layer) {
-		mapTiles.erase(it);
-	}
-	
-	if (redraw) {
-		update_area(cellPos, layer, 1);
-		redraw_affected_y_level(cellPos.y, 0);
-	}
-}
-
-bool FastTileMap::has_flag(Object* tileData, const String& FLAG) {
-    Array flags = tileData->get("flags");
-    for (int i = 0; i < flags.size(); i++) {
-        if (flags[i] == FLAG) {
-            return true;
-        }
-    }
-    return false;
-}
-
-Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, const std::unordered_set<Vector2i>& position_set) {
+Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos) {
     const Vector2i neighbors[8] = {
         cellPos + Vector2i(-1, -1),
         cellPos + Vector2i(0, -1),
@@ -292,10 +184,10 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, const std::unordere
         cellPos + Vector2i(1, 1)
     };
 
-    bool hasTop = position_set.count(neighbors[1]);
-    bool hasLeft = position_set.count(neighbors[3]);
-    bool hasRight = position_set.count(neighbors[4]);
-    bool hasBottom = position_set.count(neighbors[6]);
+    bool hasTop = autotile_positions.count(neighbors[1]);
+    bool hasLeft = autotile_positions.count(neighbors[3]);
+    bool hasRight = autotile_positions.count(neighbors[4]);
+    bool hasBottom = autotile_positions.count(neighbors[6]);
 
     int bitmask = 0;
 
@@ -304,59 +196,13 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, const std::unordere
     if (hasRight) bitmask |= 16;
     if (hasBottom) bitmask |= 64;
 
-    if (hasTop && hasLeft && position_set.count(neighbors[0])) bitmask |= 1;
-    if (hasTop && hasRight && position_set.count(neighbors[2])) bitmask |= 4;
-    if (hasBottom && hasLeft && position_set.count(neighbors[5])) bitmask |= 32;
-    if (hasBottom && hasRight && position_set.count(neighbors[7])) bitmask |= 128;
+    if (hasTop && hasLeft && autotile_positions.count(neighbors[0])) bitmask |= 1;
+    if (hasTop && hasRight && autotile_positions.count(neighbors[2])) bitmask |= 4;
+    if (hasBottom && hasLeft && autotile_positions.count(neighbors[5])) bitmask |= 32;
+    if (hasBottom && hasRight && autotile_positions.count(neighbors[7])) bitmask |= 128;
 
     if (auto it = autotile_variant_map.find(bitmask); it != autotile_variant_map.end()) {
         return it->second;
     }
     return Vector2i(0, 0);
-}
-
-// Recalculates autotiling in area
-void FastTileMap::update_area(Vector2i cellPos, int layer, int radius) {
-    
-    // 1. Find tiles in area
-    std::vector<Vector2i> tiles_in_area;
-    for (int x = cellPos.x - radius; x <= cellPos.x + radius; ++x) {
-        for (int y = cellPos.y - radius; y <= cellPos.y + radius; ++y) {
-            Vector2i pos(x, y);
-            auto it = mapTiles.find(pos);
-            if (it != mapTiles.end()) {
-                const auto& tile = it->second;
-                if (tile.layer == layer) {
-                    tiles_in_area.push_back(pos);
-                }
-            }
-        }
-    }
-    
-    // 2. Build position set of autotile positions in area + border
-    std::unordered_set<Vector2i> position_set;
-    for (int x = cellPos.x - radius - 1; x <= cellPos.x + radius + 1; ++x) {
-        for (int y = cellPos.y - radius - 1; y <= cellPos.y + radius + 1; ++y) {
-            Vector2i pos(x, y);
-            auto it = mapTiles.find(pos);
-            if (it != mapTiles.end()) {
-                if (it->second.layer == layer && has_flag(it->second.tileData, "AUTOTILE")) {
-                    position_set.insert(pos);
-                }
-            }
-        }
-    }
-    
-    // 3. Update each tile in area that is an autotile
-    for (const Vector2i& pos : tiles_in_area) {
-        auto it = mapTiles.find(pos);
-        if (it != mapTiles.end()) {
-            auto& tile = it->second;
-            if (has_flag(tile.tileData, "AUTOTILE")) {
-                Vector2i atlas_base = tile.tileData->get("atlas");
-                Vector2i v = get_autotile_variant(tile.cellPos, position_set) + atlas_base;
-                tile.variant = v;
-            }
-        }
-    }
 }

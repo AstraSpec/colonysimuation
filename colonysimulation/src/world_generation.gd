@@ -22,7 +22,7 @@ const TALL_GRASS_LOW_THRESHOLD :float = 0.45
 const FLOWER_THRESHOLD :float = 0.05
 
 func generate_world() -> Dictionary:
-	Tilemap.clear_all()
+	#Tilemap.clear_all()
 	
 	var mapData :Dictionary = {}
 	
@@ -105,16 +105,17 @@ func render_map(mapData :Dictionary) -> void:
 	for tile in terrainCells:
 		Terrain.set_cells_terrain(terrainCells[tile], tile)
 	
-	for tile in floorCells:
-		Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells), false)
+	#for tile in floorCells:
+	#	Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells), false)
 	
-	for tile in wallCells:
-		Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells), false)
+	#for tile in wallCells:
+	#	Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells), false)
 	
-	for tile in objectCells:
-		Tilemap.set_cells(objectCells[tile], tile, false)
+	#for tile in objectCells:
+	#	Tilemap.set_cells(objectCells[tile], tile, false)
 	
-	Tilemap.redraw_tiles()
+	#print(mapData[Vector2i.ZERO]["tiles"])
+	Tilemap.redraw_tiles(mapData)
 
 func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
 	var grouped := {}
