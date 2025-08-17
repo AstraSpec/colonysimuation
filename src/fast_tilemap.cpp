@@ -56,9 +56,16 @@ const std::unordered_map<int, Vector2i> FastTileMap::autotile_variant_map = {
 
 void FastTileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("redraw_tiles", "mapData"), &FastTileMap::redraw_tiles);
+    ClassDB::bind_method(D_METHOD("update_y_canvas_item", "y_level", "mapData"), &FastTileMap::update_y_canvas_item);
 }
 
 FastTileMap::FastTileMap() {
+    for (int y = 0; y < Constants::WORLD_SIZE; y++) {
+        RID rid = RenderingServer::get_singleton()->canvas_item_create();
+        RenderingServer::get_singleton()->canvas_item_set_parent(rid, get_canvas_item());
+        RenderingServer::get_singleton()->canvas_item_set_z_index(rid, y);
+        y_level_canvas_items.emplace(y, rid);
+    }
 }
 
 FastTileMap::~FastTileMap() {
@@ -70,16 +77,73 @@ FastTileMap::~FastTileMap() {
     y_level_canvas_items.clear();
 }
 
-RID FastTileMap::get_or_create_y_canvas_item(int y_level) {
-    auto it = y_level_canvas_items.find(y_level);
-    if (it != y_level_canvas_items.end()) {
-        return it->second;
+void FastTileMap::redraw_tiles(Dictionary mapData) {
+    uint64_t start_time = Time::get_singleton()->get_ticks_msec();
+    
+    // Clear all canvas items first
+    for (auto &entry : y_level_canvas_items) {
+        RenderingServer::get_singleton()->canvas_item_clear(entry.second);
     }
-    RID rid = RenderingServer::get_singleton()->canvas_item_create();
-    RenderingServer::get_singleton()->canvas_item_set_parent(rid, get_canvas_item());
-    RenderingServer::get_singleton()->canvas_item_set_z_index(rid, y_level);
-    y_level_canvas_items.emplace(y_level, rid);
-    return rid;
+    uint64_t clear_time = Time::get_singleton()->get_ticks_msec();
+    
+    // Build autotile positions once
+    set_autotile_positions(mapData);
+    uint64_t autotile_time = Time::get_singleton()->get_ticks_msec();
+    
+    // Update each y-level canvas item
+    for (auto &entry : y_level_canvas_items) {
+        update_y_canvas_item(entry.first, mapData);
+    }
+    uint64_t render_time = Time::get_singleton()->get_ticks_msec();
+    
+    print_line(vformat("Redraw timing - Clear: %dms, Autotile: %dms, Render: %dms, Total: %dms", 
+        clear_time - start_time, 
+        autotile_time - clear_time, 
+        render_time - autotile_time,
+        render_time - start_time));
+}
+
+void FastTileMap::update_y_canvas_item(int y_level, Dictionary mapData) {
+    // Get the canvas item for this y-level
+    auto it = y_level_canvas_items.find(y_level);
+    if (it == y_level_canvas_items.end()) return;
+    
+    RID target = it->second;
+    RenderingServer::get_singleton()->canvas_item_clear(target);
+    
+    // Find all tiles at this y-level and render them
+    Array keys = mapData.keys();
+    for (int i = 0; i < keys.size(); i++) {
+        Vector2i cellPos = keys[i];
+        
+        // Only process cells at this y-level
+        if (cellPos.y != y_level) continue;
+        
+        Object* cellData = mapData[cellPos];
+        Dictionary tiles = cellData->get("tiles");
+        Array tile_keys = tiles.keys();
+        
+        // Iterate through each layer in the cell
+        for (int j = 1; j < tile_keys.size(); j++) {
+            String layer_key = tile_keys[j];
+            Object* tileData = tiles[layer_key];
+
+            if (!tileData) continue;
+            
+            Ref<Texture2D> texture = tileData->get("texture");
+            int layer = tileData->get("layer");
+            Vector2i offset = tileData->get("offset");
+            Vector2i size = tileData->get("size");
+            
+            Vector2i atlas = resolve_atlas(cellPos, tileData);
+            uint32_t flags = tileData->get("flags");
+            if (flags & Constants::AUTOTILE_FLAG) {
+                atlas = get_autotile_variant(cellPos) + atlas;
+            }
+            
+            render_tile(target, cellPos, atlas, offset, size, texture);
+        }
+    }
 }
 
 Vector2i FastTileMap::resolve_atlas(Vector2i cellPos, Object* tileData) {
@@ -127,47 +191,6 @@ void FastTileMap::set_autotile_positions(Dictionary mapData) {
                     autotile_positions.insert(pos);
                 }
             }
-        }
-    }
-}
-
-void FastTileMap::redraw_tiles(Dictionary mapData) {
-    for (auto &entry : y_level_canvas_items) {
-        RenderingServer::get_singleton()->canvas_item_clear(entry.second);
-    }
-    
-    set_autotile_positions(mapData);
-
-    // Redraw all tiles to their respective y-level canvas items
-    Array keys = mapData.keys();
-    for (int i = 0; i < keys.size(); i++) {
-        Vector2i cellPos = keys[i];
-        Object* cellData = mapData[cellPos];
-        
-        // Get tiles dictionary from the cell using get() method
-        Dictionary tiles = cellData->get("tiles");
-        Array tile_keys = tiles.keys();
-        
-        // Iterate through each layer in the cell
-        for (int j = 1; j < tile_keys.size(); j++) {
-            String layer_key = tile_keys[j];
-            Object* tileData = tiles[layer_key];
-
-            if (!tileData) continue;
-            
-            Ref<Texture2D> texture = tileData->get("texture");
-            int layer = tileData->get("layer");
-            Vector2i offset = tileData->get("offset");
-            Vector2i size = tileData->get("size");
-            
-            Vector2i atlas = resolve_atlas(cellPos, tileData);
-            uint32_t flags = tileData->get("flags");
-            if (flags & Constants::AUTOTILE_FLAG) {
-                atlas = get_autotile_variant(cellPos) + atlas;
-            }
-            
-            RID target = get_or_create_y_canvas_item(cellPos.y);
-            render_tile(target, cellPos, atlas, offset, size, texture);
         }
     }
 }

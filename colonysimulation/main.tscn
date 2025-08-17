@@ -31,12 +31,13 @@ UI = NodePath("UI")
 zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
-[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "Fastpathfinding", "WorldInfo", "ActionHint")]
+[node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "Tilemap", "Pathfinding", "WorldInfo", "ActionHint")]
 script = ExtResource("3_xaeo1")
 WorldGeneration = NodePath("WorldGeneration")
 Regions = NodePath("Regions")
 Entities = NodePath("Entities")
-Fastpathfinding = NodePath("FastPathfinding")
+Tilemap = NodePath("FastTileMap")
+Pathfinding = NodePath("FastPathfinding")
 WorldInfo = NodePath("../UI/WorldInfo")
 ActionHint = NodePath("../UI/ActionHint")
 

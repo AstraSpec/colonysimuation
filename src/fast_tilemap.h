@@ -35,7 +35,6 @@ protected:
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
     std::unordered_map<int, RID> y_level_canvas_items;
-    RID get_or_create_y_canvas_item(int y_level);
 
     std::unordered_set<Vector2i> autotile_positions;
     void set_autotile_positions(Dictionary mapData);
@@ -47,8 +46,10 @@ public:
     FastTileMap();
     ~FastTileMap();
 
-    Vector2i get_autotile_variant(Vector2i cellPos);
     void redraw_tiles(Dictionary mapData);
+    Vector2i get_autotile_variant(Vector2i cellPos);
+
+    void update_y_canvas_item(int y_level, Dictionary mapData);
 };
 
 }

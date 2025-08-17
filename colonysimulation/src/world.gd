@@ -3,7 +3,8 @@ extends Node2D
 @export var WorldGeneration :Node2D
 @export var Regions :Node2D
 @export var Entities :Node2D
-@export var Fastpathfinding :FastPathfinding
+@export var Tilemap :FastTileMap
+@export var Pathfinding :FastPathfinding
 @export var WorldInfo :Label
 @export var ActionHint :Control
 
@@ -19,19 +20,26 @@ func start() -> void:
 	mapData = WorldGeneration.generate_world()
 	var timer2 = Time.get_ticks_msec()
 	Regions.generate_regions(mapData)
-	Fastpathfinding.update_pathfinding(mapData)
+	Pathfinding.update_pathfinding(mapData)
 	
 	print(timer2-timer1)
 	
 	Entities.summon_entity(Vector2i(126, 126))
+
+func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
+	var layer :int = tileData.layer
+	var cell :CellDef = mapData[cellPos]
+	cell.tiles[layer] = tileData
 	
+	Tilemap.update_y_canvas_item(cellPos.y, mapData)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if Entities.selected:
-			Entities.selected.move(mouseCellPos, Fastpathfinding)
+			Entities.selected.move(mouseCellPos, Pathfinding)
 		else:
 			process_action()
 		
