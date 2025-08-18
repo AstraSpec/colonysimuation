@@ -58,6 +58,7 @@ void FastTileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("redraw_tiles", "mapData"), &FastTileMap::redraw_tiles);
     ClassDB::bind_method(D_METHOD("update_y_canvas_item", "y_level", "mapData"), &FastTileMap::update_y_canvas_item);
     ClassDB::bind_method(D_METHOD("add_autotile_position", "cellPos", "tileData"), &FastTileMap::add_autotile_position);
+    ClassDB::bind_method(D_METHOD("clear_autotile_position", "cellPos", "layer"), &FastTileMap::clear_autotile_position);
 }
 
 FastTileMap::FastTileMap() {
@@ -130,7 +131,7 @@ void FastTileMap::update_y_canvas_item(int y_level, Dictionary mapData) {
             Vector2i atlas = resolve_atlas(cellPos, tileData);
             uint32_t flags = tileData->get("flags");
             if (flags & Constants::AUTOTILE_FLAG) {
-                atlas = get_autotile_variant(cellPos) + atlas;
+                atlas = get_autotile_variant(cellPos, layer) + atlas;
             }
             
             render_tile(target, cellPos, atlas, offset, size, texture);
@@ -166,19 +167,22 @@ void FastTileMap::render_tile(RID target_canvas, Vector2i cellPos, Vector2i atla
 }
 
 void FastTileMap::set_autotile_positions(Dictionary mapData) {
-    // Build position set of all AUTOTILE tiles for autotile variant calculation
+    // Clear existing layered autotile positions
+    autotile_positions.clear();
+    
+    // Build position set of all AUTOTILE tiles for autotile variant calculation, organized by layer
     Array keys = mapData.keys();
     for (int i = 0; i < keys.size(); i++) {
-        Vector2i pos = keys[i];
-        Object* cellData = mapData[pos];
+        Vector2i cellPos = keys[i];
+        Object* cellData = mapData[cellPos];
         Array tiles = cellData->get("tiles");
         
-        for (int j = 0; j < tiles.size(); j++) {
+        for (int j = 1; j < tiles.size(); j++) {
             Object* tileData = tiles[j];
             if (tileData) {
                 uint32_t flags = tileData->get("flags");
                 if (flags & Constants::AUTOTILE_FLAG) {
-                    autotile_positions.insert(pos);
+                    autotile_positions[j].insert(cellPos);
                 }
             }
         }
@@ -188,13 +192,22 @@ void FastTileMap::set_autotile_positions(Dictionary mapData) {
 bool FastTileMap::add_autotile_position(Vector2i cellPos, Object* tileData) {
     uint32_t flags = tileData->get("flags");
     if (flags & Constants::AUTOTILE_FLAG) {
-        autotile_positions.insert(cellPos);
+        int layer = tileData->get("layer");
+        autotile_positions[layer].insert(cellPos);
         return true;
     }
     return false;
 }
 
-Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos) {
+bool FastTileMap::clear_autotile_position(Vector2i cellPos, int layer) {
+    auto it = autotile_positions.find(layer);
+    if (it != autotile_positions.end() && it->second.erase(cellPos) > 0) {
+        return true;
+    }
+    return false;
+}
+
+Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, int layer) {
     const Vector2i neighbors[8] = {
         cellPos + Vector2i(-1, -1),
         cellPos + Vector2i(0, -1),
@@ -206,10 +219,18 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos) {
         cellPos + Vector2i(1, 1)
     };
 
-    bool hasTop = autotile_positions.count(neighbors[1]);
-    bool hasLeft = autotile_positions.count(neighbors[3]);
-    bool hasRight = autotile_positions.count(neighbors[4]);
-    bool hasBottom = autotile_positions.count(neighbors[6]);
+    // Check if neighbors have autotiles in the same layer
+    auto it = autotile_positions.find(layer);
+    if (it == autotile_positions.end()) {
+        return Vector2i(0, 0); // No autotiles in this layer
+    }
+    
+    const auto& layer_positions = it->second;
+    
+    bool hasTop = layer_positions.count(neighbors[1]);
+    bool hasLeft = layer_positions.count(neighbors[3]);
+    bool hasRight = layer_positions.count(neighbors[4]);
+    bool hasBottom = layer_positions.count(neighbors[6]);
 
     int bitmask = 0;
 
@@ -218,10 +239,10 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos) {
     if (hasRight) bitmask |= 16;
     if (hasBottom) bitmask |= 64;
 
-    if (hasTop && hasLeft && autotile_positions.count(neighbors[0])) bitmask |= 1;
-    if (hasTop && hasRight && autotile_positions.count(neighbors[2])) bitmask |= 4;
-    if (hasBottom && hasLeft && autotile_positions.count(neighbors[5])) bitmask |= 32;
-    if (hasBottom && hasRight && autotile_positions.count(neighbors[7])) bitmask |= 128;
+    if (hasTop && hasLeft && layer_positions.count(neighbors[0])) bitmask |= 1;
+    if (hasTop && hasRight && layer_positions.count(neighbors[2])) bitmask |= 4;
+    if (hasBottom && hasLeft && layer_positions.count(neighbors[5])) bitmask |= 32;
+    if (hasBottom && hasRight && layer_positions.count(neighbors[7])) bitmask |= 128;
 
     if (auto it = autotile_variant_map.find(bitmask); it != autotile_variant_map.end()) {
         return it->second;

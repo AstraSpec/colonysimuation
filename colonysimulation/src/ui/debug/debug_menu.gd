@@ -12,7 +12,7 @@ func init_debug() -> void:
 	init_button("Summon entity", Callable(Entities, "summon_entity"), [Callable(World, "get_mouse_cell_pos")])
 	init_button("Spawn tree", Callable(World, "set_cell"), [Callable(World, "get_mouse_cell_pos"), TileManager.tileDb["tree"]])
 	init_button("Spawn wall", Callable(World, "set_cell"), [Callable(World, "get_mouse_cell_pos"), TileManager.tileDb["stone_wall"]])
-	init_button("Clear wall", Callable(FastTilemap, "clear_cell"), [Callable(World, "get_mouse_cell_pos"), 2])
+	init_button("Clear wall", Callable(World, "clear_cell"), [Callable(World, "get_mouse_cell_pos"), 2])
 
 func init_button(text :String, action :Callable, args = []) -> void:
 	var instance = DebugButton.instantiate()

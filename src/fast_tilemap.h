@@ -36,7 +36,7 @@ protected:
     
     std::unordered_map<int, RID> y_level_canvas_items;
 
-    std::unordered_set<Vector2i> autotile_positions;
+    std::unordered_map<int, std::unordered_set<Vector2i>> autotile_positions;
     void set_autotile_positions(Dictionary mapData);
 
     static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
@@ -49,7 +49,8 @@ public:
     void redraw_tiles(Dictionary mapData);
 
     bool add_autotile_position(Vector2i cellPos, Object* tileData);
-    Vector2i get_autotile_variant(Vector2i cellPos);
+    bool clear_autotile_position(Vector2i cellPos, int layer);
+    Vector2i get_autotile_variant(Vector2i cellPos, int layer);
 
     void update_y_canvas_item(int y_level, Dictionary mapData);
 };

@@ -37,6 +37,17 @@ func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
 		Tilemap.update_y_canvas_item(cellPos.y - 1, mapData)
 		Tilemap.update_y_canvas_item(cellPos.y + 1, mapData)
 
+func clear_cell(cellPos, layer) -> void:
+	mapData[cellPos].tiles[layer] = null
+	
+	var was_autotile :bool = Tilemap.clear_autotile_position(cellPos, layer)
+	Tilemap.update_y_canvas_item(cellPos.y, mapData)
+	
+	# Clear the autotile position if it was one
+	if was_autotile:
+		Tilemap.update_y_canvas_item(cellPos.y - 1, mapData)
+		Tilemap.update_y_canvas_item(cellPos.y + 1, mapData)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
