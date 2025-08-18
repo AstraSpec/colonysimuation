@@ -10,7 +10,7 @@ func _ready() -> void:
 	UI.init_ui()
 
 #TODO: 
-# precompute flags bitmask
+# tiles dict should be array?
 
 # - entities
 # path searching

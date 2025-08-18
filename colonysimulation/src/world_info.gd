@@ -10,7 +10,7 @@ func update_info(cellPos :Vector2i, cellData :CellDef) -> void:
 	visible = true
 	
 	var info :Array = []
-	for tileData :TileDef in cellData.tiles.values():
+	for tileData :TileDef in cellData.tiles:
 		if tileData != null:
 			info.append(tileData.id)
 	

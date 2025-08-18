@@ -45,10 +45,10 @@ func process_tile(cellPos :Vector2i) -> CellDef:
 		"tree": TreeNoise.get_noise_2d(cellPos.x, cellPos.y),
 	}
 	
-	Cell.tiles.terrain = process_terrain(noise)
-	Cell.tiles.floor = process_floor(noise)
-	Cell.tiles.wall = process_wall(noise)
-	Cell.tiles.object = process_object(noise)
+	Cell.tiles.append(process_terrain(noise))
+	Cell.tiles.append(process_floor(noise))
+	Cell.tiles.append(process_wall(noise))
+	Cell.tiles.append(process_object(noise))
 	
 	Cell.chunk = Vector2i(cellPos.x / CHUNK_SIZE, cellPos.y / CHUNK_SIZE)
 	
@@ -95,45 +95,23 @@ func get_vegetation(noise :Dictionary) -> String:
 	return ""
 
 func render_map(mapData :Dictionary) -> void:
-	var cells :Dictionary = group_cells_by_tile(mapData)
-	
-	var terrainCells :Dictionary = cells["terrain"]
-	var floorCells :Dictionary = cells["floor"]
-	var wallCells :Dictionary = cells["wall"]
-	var objectCells :Dictionary = cells["object"]
+	var terrainCells :Dictionary = get_terrain_cells(mapData)
 	
 	for tile in terrainCells:
 		Terrain.set_cells_terrain(terrainCells[tile], tile)
 	
-	#for tile in floorCells:
-	#	Tilemap.set_cells_autotile(floorCells[tile], tile, get_total_autotile_cells(floorCells), false)
-	
-	#for tile in wallCells:
-	#	Tilemap.set_cells_autotile(wallCells[tile], tile, get_total_autotile_cells(wallCells), false)
-	
-	#for tile in objectCells:
-	#	Tilemap.set_cells(objectCells[tile], tile, false)
-	
-	#print(mapData[Vector2i.ZERO]["tiles"])
 	Tilemap.redraw_tiles(mapData)
 
-func group_cells_by_tile(mapData :Dictionary) -> Dictionary:
+func get_terrain_cells(mapData :Dictionary) -> Dictionary:
 	var grouped := {}
-	for layer in CellDef.get_tile_layers():
-		grouped[layer] = {}
 	
 	for cellPos in mapData:
 		var cell :CellDef = mapData[cellPos]
-		for layer in grouped:
-			var tileData :TileDef = cell.tiles[layer]
-			
-			if tileData == null:
-				continue
-			
-			if not grouped[layer].has(tileData):
-				grouped[layer][tileData] = []
-			
-			grouped[layer][tileData].append(cellPos)
+		if cell.tiles[0] != null:
+			var tileDef :TileDef = cell.tiles[0]
+			if not grouped.has(tileDef):
+				grouped[tileDef] = []
+			grouped[tileDef].append(cellPos)
 	
 	return grouped
 

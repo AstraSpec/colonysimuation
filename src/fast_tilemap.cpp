@@ -78,29 +78,23 @@ FastTileMap::~FastTileMap() {
 }
 
 void FastTileMap::redraw_tiles(Dictionary mapData) {
-    uint64_t start_time = Time::get_singleton()->get_ticks_msec();
-    
     // Clear all canvas items first
     for (auto &entry : y_level_canvas_items) {
         RenderingServer::get_singleton()->canvas_item_clear(entry.second);
     }
-    uint64_t clear_time = Time::get_singleton()->get_ticks_msec();
     
     // Build autotile positions once
     set_autotile_positions(mapData);
-    uint64_t autotile_time = Time::get_singleton()->get_ticks_msec();
+    
+    uint64_t update_start = Time::get_singleton()->get_ticks_msec();
     
     // Update each y-level canvas item
     for (auto &entry : y_level_canvas_items) {
         update_y_canvas_item(entry.first, mapData);
     }
-    uint64_t render_time = Time::get_singleton()->get_ticks_msec();
     
-    print_line(vformat("Redraw timing - Clear: %dms, Autotile: %dms, Render: %dms, Total: %dms", 
-        clear_time - start_time, 
-        autotile_time - clear_time, 
-        render_time - autotile_time,
-        render_time - start_time));
+    uint64_t update_end = Time::get_singleton()->get_ticks_msec();
+    print_line(vformat("Y-level updates took: %dms", update_end - update_start));
 }
 
 void FastTileMap::update_y_canvas_item(int y_level, Dictionary mapData) {
@@ -110,23 +104,20 @@ void FastTileMap::update_y_canvas_item(int y_level, Dictionary mapData) {
     
     RID target = it->second;
     RenderingServer::get_singleton()->canvas_item_clear(target);
-    
-    // Find all tiles at this y-level and render them
-    Array keys = mapData.keys();
-    for (int i = 0; i < keys.size(); i++) {
-        Vector2i cellPos = keys[i];
+
+    // Iterate only cells at this y_level
+    for (int x = 0; x < Constants::WORLD_SIZE; x++) {
+        Vector2i cellPos(x, y_level);
         
-        // Only process cells at this y-level
-        if (cellPos.y != y_level) continue;
+        // Check if cell exists in mapData
+        if (!mapData.has(cellPos)) continue;
         
         Object* cellData = mapData[cellPos];
-        Dictionary tiles = cellData->get("tiles");
-        Array tile_keys = tiles.keys();
+        Array tiles = cellData->get("tiles");
         
         // Iterate through each layer in the cell
-        for (int j = 1; j < tile_keys.size(); j++) {
-            String layer_key = tile_keys[j];
-            Object* tileData = tiles[layer_key];
+        for (int j = 1; j < tiles.size(); j++) {
+            Object* tileData = tiles[j];
 
             if (!tileData) continue;
             
@@ -179,12 +170,10 @@ void FastTileMap::set_autotile_positions(Dictionary mapData) {
     for (int i = 0; i < keys.size(); i++) {
         Vector2i pos = keys[i];
         Object* cellData = mapData[pos];
-        Dictionary tiles = cellData->get("tiles");
-        Array tile_keys = tiles.keys();
+        Array tiles = cellData->get("tiles");
         
-        for (int j = 0; j < tile_keys.size(); j++) {
-            String layer_key = tile_keys[j];
-            Object* tileData = tiles[layer_key];
+        for (int j = 0; j < tiles.size(); j++) {
+            Object* tileData = tiles[j];
             if (tileData) {
                 uint32_t flags = tileData->get("flags");
                 if (flags & Constants::AUTOTILE_FLAG) {

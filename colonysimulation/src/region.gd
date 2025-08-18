@@ -29,7 +29,7 @@ func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
 			region.id = totalRegions
 			
 			for layer in TILE_LAYERS:
-				region.tileIndex[layer] = {}
+				region.tileIndex.append({})
 			
 			regionDb[totalRegions] = region
 			flood_fill_region(cellPos, Vector2i.ZERO, mapData)
@@ -68,7 +68,7 @@ func get_tiles(regionData :RegionDef, mapData :Dictionary) -> void:
 	for cell in regionData.cells:
 		var cellData :CellDef = mapData[cell]
 		
-		for layer :String in cellData.tiles:
+		for layer in cellData.tiles.size():
 			var tileData :TileDef = cellData.tiles[layer]
 			
 			if tileData != null:

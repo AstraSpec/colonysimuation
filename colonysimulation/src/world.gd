@@ -27,9 +27,7 @@ func start() -> void:
 	Entities.summon_entity(Vector2i(126, 126))
 
 func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
-	var layer :int = tileData.layer
-	var cell :CellDef = mapData[cellPos]
-	cell.tiles[layer] = tileData
+	mapData[cellPos].tiles[tileData.layer] = tileData
 	
 	Tilemap.update_y_canvas_item(cellPos.y, mapData)
 
