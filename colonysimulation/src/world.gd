@@ -29,7 +29,13 @@ func start() -> void:
 func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
 	mapData[cellPos].tiles[tileData.layer] = tileData
 	
+	var is_autotile :bool = Tilemap.add_autotile_position(cellPos, tileData)
 	Tilemap.update_y_canvas_item(cellPos.y, mapData)
+	
+	# If this is an autotile, update neighboring y-levels that might be affected
+	if is_autotile:
+		Tilemap.update_y_canvas_item(cellPos.y - 1, mapData)
+		Tilemap.update_y_canvas_item(cellPos.y + 1, mapData)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:

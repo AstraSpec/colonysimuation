@@ -28,6 +28,7 @@ public:
     static int get_tile_size();
     static int get_chunk_size();
     static uint32_t flags_to_bits(Array flags);
+
 };
 
 }

@@ -47,6 +47,8 @@ public:
     ~FastTileMap();
 
     void redraw_tiles(Dictionary mapData);
+
+    bool add_autotile_position(Vector2i cellPos, Object* tileData);
     Vector2i get_autotile_variant(Vector2i cellPos);
 
     void update_y_canvas_item(int y_level, Dictionary mapData);

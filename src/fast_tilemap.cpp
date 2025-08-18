@@ -57,6 +57,7 @@ const std::unordered_map<int, Vector2i> FastTileMap::autotile_variant_map = {
 void FastTileMap::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("redraw_tiles", "mapData"), &FastTileMap::redraw_tiles);
     ClassDB::bind_method(D_METHOD("update_y_canvas_item", "y_level", "mapData"), &FastTileMap::update_y_canvas_item);
+    ClassDB::bind_method(D_METHOD("add_autotile_position", "cellPos", "tileData"), &FastTileMap::add_autotile_position);
 }
 
 FastTileMap::FastTileMap() {
@@ -182,6 +183,15 @@ void FastTileMap::set_autotile_positions(Dictionary mapData) {
             }
         }
     }
+}
+
+bool FastTileMap::add_autotile_position(Vector2i cellPos, Object* tileData) {
+    uint32_t flags = tileData->get("flags");
+    if (flags & Constants::AUTOTILE_FLAG) {
+        autotile_positions.insert(cellPos);
+        return true;
+    }
+    return false;
 }
 
 Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos) {
