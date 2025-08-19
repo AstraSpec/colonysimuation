@@ -45,5 +45,13 @@
 	"offset": [0, -1],
 	"texture": "objects.png",
 	"flags": ["WORLDSPAWN", "TALL"]
-  }
+  },
+  {
+	"id": "pointer",
+	"name": "pointer",
+	"type": "object",
+	"atlas": [2, 2],
+	"texture": "objects.png",
+	"flags": []
+  },
 ] 

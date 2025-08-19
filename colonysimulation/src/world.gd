@@ -24,6 +24,7 @@ func start() -> void:
 	
 	print(timer2-timer1)
 	
+	set_cell(Vector2i(30, 227), TileManager.tileDb["pointer"])
 	Entities.summon_entity(Vector2i(126, 126))
 
 func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
