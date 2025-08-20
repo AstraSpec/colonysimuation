@@ -1,6 +1,5 @@
 #include "fast_tilemap.h"
 #include <algorithm>
-#include <godot_cpp/classes/time.hpp>
 
 using namespace godot;
 
@@ -88,15 +87,10 @@ void FastTileMap::redraw_tiles(Dictionary mapData) {
     // Build autotile positions once
     set_autotile_positions(mapData);
     
-    uint64_t update_start = Time::get_singleton()->get_ticks_msec();
-    
     // Update each y-level canvas item
     for (auto &entry : y_level_canvas_items) {
         update_y_canvas_item(entry.first, mapData);
     }
-    
-    uint64_t update_end = Time::get_singleton()->get_ticks_msec();
-    print_line(vformat("Y-level updates took: %dms", update_end - update_start));
 }
 
 void FastTileMap::update_y_canvas_item(int y_level, Dictionary mapData) {
@@ -222,7 +216,7 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, int layer) {
     // Check if neighbors have autotiles in the same layer
     auto it = autotile_positions.find(layer);
     if (it == autotile_positions.end()) {
-        return Vector2i(0, 0); // No autotiles in this layer
+        return Vector2i(0, 0);
     }
     
     const auto& layer_positions = it->second;

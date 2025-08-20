@@ -1,6 +1,7 @@
 extends Region
 
-const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.RIGHT]
+const DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.RIGHT, Vector2i.UP, Vector2i.LEFT]
+const FLOOD_DIRS :Array[Vector2i] = [Vector2i.DOWN, Vector2i.RIGHT]
 static var WORLD_SIZE :int = Constants.get_world_size()
 static var CHUNK_SIZE :int = Constants.get_chunk_size()
 static var TILE_LAYERS :Array = CellDef.get_tile_layers()
@@ -18,6 +19,48 @@ func generate_regions(mapData :Dictionary) -> void:
 	for regionData :RegionDef in regionDb.values():
 		get_neighbours(regionData, mapData)
 		get_tiles(regionData, mapData)
+	
+	var timer1 = Time.get_ticks_usec()
+	var foundTile = find_tile(119, TileManager.tileDb["pointer"], mapData)
+	var timer2 = Time.get_ticks_usec()
+	print(timer2-timer1)
+
+	print("LOOT GET at cell ", foundTile)
+
+# startID should be region or ID? neighbours RegionDefs or ids?
+func find_tile(startID :int, tileData :TileDef, mapData :Dictionary) -> Vector2i:
+	var visitedRegions: Array = []
+	var queue: Array = [startID]
+
+	while queue.size() > 0:
+		var id = queue.pop_front()
+		if visitedRegions.has(id):
+			continue
+		
+		visitedRegions.append(id)
+		
+		var region: RegionDef = regionDb[id]
+		var layer: int = tileData.layer
+		
+		# Found region
+		if region.tileIndex[layer].has(tileData):
+			return flood_fill_get_tile(region, tileData, mapData)
+			
+		# Add neighbors to queue
+		for neighbour_id in region.neighbours.keys():
+			if !visitedRegions.has(neighbour_id):
+				queue.append(neighbour_id)
+	
+	return Vector2i(-1, -1)
+
+func flood_fill_get_tile(region :RegionDef, tileData :TileDef, mapData :Dictionary) -> Vector2i:
+	var layer: int = tileData.layer
+	
+	for cell :Vector2i in region.cells:
+		if mapData[cell].tiles[layer] == tileData:
+			return cell
+	
+	return Vector2i(-1, -1)
 
 # Creates regions within a given chunk.
 func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
@@ -46,7 +89,7 @@ func flood_fill_region(pos :Vector2i, dir :Vector2i, mapData :Dictionary) -> voi
 		mapData[floodPos].region = totalRegions
 		regionDb[totalRegions].cells.append(floodPos)
 		
-		for floodDir in DIRS:
+		for floodDir in FLOOD_DIRS:
 			flood_fill_region(floodPos, floodDir, mapData)
 
 func get_neighbours(regionData :RegionDef, mapData :Dictionary) -> void:

@@ -22,13 +22,14 @@ const TALL_GRASS_LOW_THRESHOLD :float = 0.45
 const FLOWER_THRESHOLD :float = 0.05
 
 func generate_world() -> Dictionary:
-	#Tilemap.clear_all()
-	
 	var mapData :Dictionary = {}
 	
 	for i in WORLD_SIZE ** 2:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
 		mapData[cellPos] = process_tile(cellPos)
+	
+	mapData[Vector2i(30, 227)].tiles[3] = TileManager.tileDb["pointer"]
+	#mapData[Vector2i(126, 130)].tiles[3] = TileManager.tileDb["pointer"]
 	
 	render_map(mapData)
 	
