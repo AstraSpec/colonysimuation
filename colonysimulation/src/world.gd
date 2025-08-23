@@ -26,26 +26,44 @@ func start() -> void:
 	Entities.summon_entity(Vector2i(126, 126))
 
 func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
-	mapData[cellPos].tiles[tileData.layer] = tileData
+	var cellData :CellDef = mapData[cellPos]
+	var layer :int = tileData.layer
 	
+	if cellData.tiles[layer] == tileData: return
+	
+	# Map data
+	cellData.tiles[layer] = tileData
+	
+	# Autotile
 	var is_autotile :bool = Tilemap.add_autotile_position(cellPos, tileData)
-	Tilemap.update_y_canvas_item(cellPos.y, mapData)
-	
-	# If this is an autotile, update neighboring y-levels that might be affected
 	if is_autotile:
 		Tilemap.update_y_canvas_item(cellPos.y - 1, mapData)
 		Tilemap.update_y_canvas_item(cellPos.y + 1, mapData)
-
-func clear_cell(cellPos, layer) -> void:
-	mapData[cellPos].tiles[layer] = null
 	
-	var was_autotile :bool = Tilemap.clear_autotile_position(cellPos, layer)
 	Tilemap.update_y_canvas_item(cellPos.y, mapData)
 	
-	# Clear the autotile position if it was one
+	# Region
+	Regions.add_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
+
+func clear_cell(cellPos :Vector2i, layer :int) -> void:
+	var cellData :CellDef = mapData[cellPos]
+	var tileData :TileDef = cellData.tiles[layer]
+	
+	if tileData == null: return
+	
+	# Map data
+	mapData[cellPos].tiles[layer] = null
+	
+	# Autotile
+	var was_autotile :bool = Tilemap.clear_autotile_position(cellPos, layer)
 	if was_autotile:
 		Tilemap.update_y_canvas_item(cellPos.y - 1, mapData)
 		Tilemap.update_y_canvas_item(cellPos.y + 1, mapData)
+
+	Tilemap.update_y_canvas_item(cellPos.y, mapData)
+	
+	# Region
+	Regions.remove_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:

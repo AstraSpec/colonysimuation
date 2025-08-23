@@ -22,8 +22,6 @@ func generate_regions(mapData :Dictionary) -> void:
 	
 	var foundTile = find_tile(119, TileManager.tileDb["pointer"], mapData)
 	print("LOOT GET at cell ", foundTile)
-	
-	print_tile_indexes(16)
 
 # startID should be region or ID? neighbours RegionDefs or ids?
 func find_tile(startID :int, tileData :TileDef, mapData :Dictionary) -> Vector2i:
@@ -109,15 +107,28 @@ func get_tile_indexes(regionData :RegionDef, mapData :Dictionary) -> void:
 	for cell in regionData.cells:
 		var cellData :CellDef = mapData[cell]
 		
-		for layer in cellData.tiles.size():
-			var tileData :TileDef = cellData.tiles[layer]
-			
-			if tileData == null: continue
-			
-			if regionData.tileIndex[layer].has(tileData):
-				regionData.tileIndex[layer][tileData] += 1
-			else:
-				regionData.tileIndex[layer][tileData] = 1
+		for layer in cellData.tiles.size() -1:
+			add_tile_index(regionData.tileIndex[layer+1], cellData.tiles[layer+1])
+
+func add_tile_index(tileIndexes :Dictionary, tileData :TileDef):
+	if tileData == null: return
+	
+	if tileIndexes.has(tileData):
+		tileIndexes[tileData] += 1
+	else:
+		tileIndexes[tileData] = 1
+
+func remove_tile_index(tileIndexes :Dictionary, tileData :TileDef):
+	if tileData == null: return
+	
+	if tileIndexes.has(tileData):
+		tileIndexes[tileData] -= 1
+		
+		if tileIndexes[tileData] == 0:
+			tileIndexes.erase(tileData)
+
+func get_tile_index(regionID :int, layer :int) -> Dictionary:
+	return regionDb[regionID].tileIndex[layer]
 
 func print_tile_indexes(regionID :int):
 	var tileIndex :Array = regionDb[regionID].tileIndex
