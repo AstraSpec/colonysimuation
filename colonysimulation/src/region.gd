@@ -18,14 +18,12 @@ func generate_regions(mapData :Dictionary) -> void:
 	
 	for regionData :RegionDef in regionDb.values():
 		get_neighbours(regionData, mapData)
-		get_tiles(regionData, mapData)
+		get_tile_indexes(regionData, mapData)
 	
-	var timer1 = Time.get_ticks_usec()
 	var foundTile = find_tile(119, TileManager.tileDb["pointer"], mapData)
-	var timer2 = Time.get_ticks_usec()
-	print(timer2-timer1)
-
 	print("LOOT GET at cell ", foundTile)
+	
+	print_tile_indexes(16)
 
 # startID should be region or ID? neighbours RegionDefs or ids?
 func find_tile(startID :int, tileData :TileDef, mapData :Dictionary) -> Vector2i:
@@ -107,12 +105,23 @@ func is_chunk_edge(cellPos :Vector2i, chunkPos :Vector2i) -> bool:
 	return (localPos.x == 0 or localPos.x == CHUNK_SIZE - 1 or 
 			localPos.y == 0 or localPos.y == CHUNK_SIZE - 1)
 
-func get_tiles(regionData :RegionDef, mapData :Dictionary) -> void:
+func get_tile_indexes(regionData :RegionDef, mapData :Dictionary) -> void:
 	for cell in regionData.cells:
 		var cellData :CellDef = mapData[cell]
 		
 		for layer in cellData.tiles.size():
 			var tileData :TileDef = cellData.tiles[layer]
 			
-			if tileData != null:
-				regionData.tileIndex[layer][tileData] = true
+			if tileData == null: continue
+			
+			if regionData.tileIndex[layer].has(tileData):
+				regionData.tileIndex[layer][tileData] += 1
+			else:
+				regionData.tileIndex[layer][tileData] = 1
+
+func print_tile_indexes(regionID :int):
+	var tileIndex :Array = regionDb[regionID].tileIndex
+	
+	for layer in tileIndex:
+		for tile :TileDef in layer:
+			prints(tile.id, layer[tile])
