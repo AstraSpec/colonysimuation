@@ -4,7 +4,7 @@ var textures :Dictionary
 
 var tileDb :Dictionary
 
-var TILE_LAYERS :Array = CellDef.get_tile_layers()
+var TILE_LAYERS :Array = Constants.get_tile_layers()
 
 func _init() -> void:
 	load_db("res://data/tiles/")
