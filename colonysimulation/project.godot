@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 TileManager="*res://src/data/tile_manager.gd"
+JobManager="*res://src/data/job_manager.gd"
 
 [debug]
 

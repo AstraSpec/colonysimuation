@@ -17,10 +17,10 @@ var pendingAction :ActionDef
 
 func start() -> void:
 	mapData = WorldGeneration.generate_world()
-	var timer1 = Time.get_ticks_msec()
+	#var timer1 = Time.get_ticks_msec()
 	Regions.generate_regions(mapData)
-	var timer2 = Time.get_ticks_msec()
-	print("Msec: " + str(timer2-timer1))
+	#var timer2 = Time.get_ticks_msec()
+	#print("Msec: " + str(timer2-timer1))
 	Pathfinding.update_pathfinding(mapData)
 	
 	Entities.summon_entity(Vector2i(126, 126))
@@ -114,3 +114,6 @@ func resolve_callables(arg):
 
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos
+
+func mine() -> void:
+	print("MINING DIAMONDS")

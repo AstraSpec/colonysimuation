@@ -21,7 +21,7 @@ func generate_regions(mapData :Dictionary) -> void:
 		get_tile_indexes(regionData, mapData)
 	
 	var foundTile = find_tile(119, TileManager.tileDb["pointer"], mapData)
-	print("LOOT GET at cell ", foundTile)
+	#print("LOOT GET at cell ", foundTile)
 
 # startID should be region or ID? neighbours RegionDefs or ids?
 func find_tile(startID :int, tileData :TileDef, mapData :Dictionary) -> Vector2i:
