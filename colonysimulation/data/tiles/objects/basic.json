@@ -3,6 +3,7 @@
 	"id": "tree",
 	"name": "tree",
 	"type": "object",
+	"work": 5,
 	"atlas_variants": [
 		[0, 0],
 		[1, 0],
