@@ -71,11 +71,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if Entities.selected:
-			Entities.selected.move(mouseCellPos, Pathfinding)
+			Entities.selected.move(mouseCellPos, true)
 		else:
 			process_action()
-		
-		get_viewport().set_input_as_handled()
 
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE or \
 			event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -92,6 +90,7 @@ func update_mouse_cell_pos() -> void:
 
 func process_action() -> void:
 	if !pendingAction: return
+	get_viewport().set_input_as_handled()
 	
 	var action = pendingAction.action
 	var args = []

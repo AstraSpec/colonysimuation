@@ -8,12 +8,3 @@ func _ready() -> void:
 	World.start()
 	Camera.start()
 	UI.init_ui()
-
-#TODO: 
-# tiles dict should be array?
-
-# - entities
-# path searching
-# spawned entities are not auto clicked
-
-# - jobs
