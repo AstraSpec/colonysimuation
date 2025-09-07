@@ -104,7 +104,10 @@ func process_action() -> void:
 
 func resolve_callables(arg):
 	if arg is Callable:
-		return arg.call()
+		if arg.get_argument_count() == 0:
+			return arg.call()
+		else:
+			return arg
 	elif arg is Array:
 		var array: Array = []
 		for element in arg:
@@ -115,5 +118,13 @@ func resolve_callables(arg):
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos
 
-func mine() -> void:
-	print("MINING DIAMONDS")
+func start_mining_job(cellPos :Vector2i) -> void:
+	var wallData :TileDef = mapData[cellPos].tiles[2]
+	if wallData == null: return
+	
+	var workAmount = wallData.work
+	
+	JobManager.add_job("mine", mouseCellPos, workAmount, Callable(self, "complete_mining_job"))
+
+func complete_mining_job(cellPos :Vector2i) -> void:
+	clear_cell(cellPos, 2)

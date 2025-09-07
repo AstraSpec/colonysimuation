@@ -8,12 +8,18 @@ extends Control
 
 @onready var DebugButton :PackedScene = preload("res://src/ui/debug/debug_button.tscn")
 
+var mouse_cell_pos :Callable
+
+func _ready() -> void:
+	mouse_cell_pos = Callable(World, "get_mouse_cell_pos")
+
 func init_debug() -> void:
-	init_button("Summon entity", Callable(Entities, "summon_entity"), [Callable(World, "get_mouse_cell_pos")])
-	init_button("Spawn tree", Callable(World, "set_cell"), [Callable(World, "get_mouse_cell_pos"), TileManager.tileDb["tree"]])
-	init_button("Spawn wall", Callable(World, "set_cell"), [Callable(World, "get_mouse_cell_pos"), TileManager.tileDb["stone_wall"]])
-	init_button("Clear wall", Callable(World, "clear_cell"), [Callable(World, "get_mouse_cell_pos"), 2])
-	init_button("Add mining job", Callable(JobManager, "add_job"), ["mine", Callable(World, "get_mouse_cell_pos"), World])
+	init_button("Summon entity", Callable(Entities, "summon_entity"), [mouse_cell_pos])
+	init_button("Spawn tree", Callable(World, "set_cell"), [mouse_cell_pos, TileManager.tileDb["tree"]])
+	init_button("Spawn wall", Callable(World, "set_cell"), [mouse_cell_pos, TileManager.tileDb["stone_wall"]])
+	init_button("Clear wall", Callable(World, "clear_cell"), [mouse_cell_pos, 2])
+	#init_button("Add mining job", Callable(JobManager, "add_job"), ["mine", mouse_cell_pos, Callable(World, "start_mining_job"), Callable(World, "complete_mining_job")])
+	init_button("Add mining job", Callable(World, "start_mining_job"), [mouse_cell_pos])
 
 func init_button(text :String, action :Callable, args = []) -> void:
 	var instance = DebugButton.instantiate()

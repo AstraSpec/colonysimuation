@@ -36,6 +36,9 @@ func _init_tiledata() -> void:
 			
 			tile.atlas = newVariants
 		
+		if element.has("work"):
+			tile.work = element.work
+		
 		tileDb[tile.id] = tile
 
 func _init_textures() -> void:

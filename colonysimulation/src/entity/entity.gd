@@ -17,7 +17,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	process_pathing(delta)
-	process_job()
+	process_job(delta)
 
 func process_pathing(delta :float) -> void:
 	if path.size() > 0:
@@ -31,22 +31,36 @@ func process_pathing(delta :float) -> void:
 		else:
 			position += (pathPos - position).normalized() * speed * delta
 
-func process_job() -> void:
+func process_job(delta :float) -> void:
 	if job == null:
-		job = JobManager.find_job()
-		if job:
-			move(job.targetCell)
+		find_job()
 	
-	elif path.is_empty() and cellPos == job.targetCell:
-		job.action.call()
-		job = null
+	elif path.is_empty():
+		execute_job(delta)
+
+func move(targetPos :Vector2i, complete_path :bool = false) -> void:
+	path = Pathfinding.find_path(cellPos, targetPos)
+	
+	if !complete_path:
+		path.resize(path.size()-1)
+
+func find_job() -> void:
+	job = JobManager.find_job()
+	if job:
+		move(job.targetCell, false)
+
+func execute_job(delta :float) -> void:
+	job.workProgress += delta
+	if job.workProgress >= job.workAmount:
+		complete_job()
+
+func complete_job() -> void:
+	job.completeAction.callv([job.targetCell])
+	job = null
 
 func _on_entity_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		Entities.update_selected(self)
-
-func move(targetPos :Vector2i) -> void:
-	path = Pathfinding.find_path(cellPos, targetPos)
 
 func select() -> void:
 	modulate = Color(1.5, 1.5, 1.5, 1.0)

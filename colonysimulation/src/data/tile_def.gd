@@ -11,3 +11,5 @@ var offset :Vector2i = Vector2i.ZERO
 var texture :CompressedTexture2D
 var layer :int
 var flags :int
+
+var work :float = 0.0
