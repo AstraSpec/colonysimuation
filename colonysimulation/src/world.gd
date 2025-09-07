@@ -69,14 +69,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
 	
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if Entities.selected:
-			Entities.selected.move(mouseCellPos, true)
-		else:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			if Entities.selected:
+				Entities.selected.move(mouseCellPos, true)
+		
+		elif event.button_index == MOUSE_BUTTON_LEFT:
 			process_action()
 
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE or \
-			event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		pendingAction = null
 		ActionHint.action_cleared()
 		Entities.update_selected(null)

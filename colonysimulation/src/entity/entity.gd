@@ -61,6 +61,7 @@ func complete_job() -> void:
 func _on_entity_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		Entities.update_selected(self)
+		get_viewport().set_input_as_handled()
 
 func select() -> void:
 	modulate = Color(1.5, 1.5, 1.5, 1.0)
