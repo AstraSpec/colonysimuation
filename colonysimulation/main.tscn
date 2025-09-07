@@ -91,6 +91,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 23.0
+mouse_filter = 2
 theme = ExtResource("10_nybe6")
 script = ExtResource("13_lh0c6")
 ActionLabel = NodePath("ActionLabel")
