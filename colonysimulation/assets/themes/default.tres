@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=7 format=3 uid="uid://dp5bub3nyq2jf"]
+[gd_resource type="Theme" load_steps=9 format=3 uid="uid://dp5bub3nyq2jf"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4l4pt"]
 
@@ -48,6 +48,19 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6ucmb"]
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ly4ju"]
+bg_color = Color(1, 0.831139, 0, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [sub_resource type="SystemFont" id="SystemFont_ymrc2"]
 
 [resource]
@@ -59,3 +72,5 @@ Button/styles/normal = SubResource("StyleBoxFlat_bormo")
 Button/styles/pressed = SubResource("StyleBoxFlat_bormo")
 Label/styles/normal = SubResource("StyleBoxEmpty_ngpgh")
 Panel/styles/panel = SubResource("StyleBoxFlat_pieu2")
+ProgressBar/styles/background = SubResource("StyleBoxFlat_6ucmb")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_ly4ju")

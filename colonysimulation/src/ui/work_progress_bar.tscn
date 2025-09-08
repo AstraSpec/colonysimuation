@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://cf0t1l5b6e5h8"]
+
+[ext_resource type="Theme" uid="uid://dp5bub3nyq2jf" path="res://assets/themes/default.tres" id="1_r2yr3"]
+
+[node name="WorkProgressBar" type="ProgressBar"]
+z_index = 4096
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -0.5
+offset_right = 0.5
+offset_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme = ExtResource("1_r2yr3")
+value = 42.24
+show_percentage = false

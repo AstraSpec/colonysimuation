@@ -12,4 +12,3 @@ func _init(_id :String, _targetCell :Vector2i, _workAmount :float, _completeActi
 	targetCell = _targetCell
 	workAmount = _workAmount
 	completeAction = _completeAction
-	

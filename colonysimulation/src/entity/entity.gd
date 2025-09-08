@@ -28,6 +28,9 @@ func process_pathing(delta :float) -> void:
 			position = pathPos
 			z_index = cellPos.y
 			path.remove_at(0)
+			
+			if path.size() == 0 and job != null:
+				start_job()
 		else:
 			position += (pathPos - position).normalized() * speed * delta
 
@@ -49,13 +52,19 @@ func find_job() -> void:
 	if job:
 		move(job.targetCell, false)
 
+func start_job() -> void:
+	JobManager.track_job(job)
+
 func execute_job(delta :float) -> void:
 	job.workProgress += delta
+	JobManager.update_job_progress(job)
+	
 	if job.workProgress >= job.workAmount:
 		complete_job()
 
 func complete_job() -> void:
 	job.completeAction.callv([job.targetCell])
+	JobManager.clear_job(job)
 	job = null
 
 func _on_entity_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:

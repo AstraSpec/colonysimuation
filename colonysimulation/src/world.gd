@@ -73,14 +73,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if Entities.selected:
 				Entities.selected.move(mouseCellPos, true)
+			clear_action()
 		
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			process_action()
+			Entities.update_selected(null)
 
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE or \
-			event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		pendingAction = null
-		ActionHint.action_cleared()
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		clear_action()
 		Entities.update_selected(null)
 
 func update_mouse_cell_pos() -> void:
@@ -115,6 +115,10 @@ func resolve_callables(arg):
 			array.append(resolve_callables(element))
 		return array
 	return arg
+
+func clear_action() -> void:
+	pendingAction = null
+	ActionHint.action_cleared()
 
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos
