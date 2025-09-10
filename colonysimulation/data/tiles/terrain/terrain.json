@@ -6,7 +6,7 @@
 	"atlas": [0, 3],
 	"size": [1, 1],
 	"texture": "terrain.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": []
   },
   {
 	"id": "mud_terrain",
@@ -15,7 +15,7 @@
 	"atlas": [6, 0],
 	"size": [1, 1],
 	"texture": "terrain.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": []
   },
   {
 	"id": "dirt_terrain",
@@ -24,7 +24,7 @@
 	"atlas": [3, 0],
 	"size": [1, 1],
 	"texture": "terrain.png",
-	"flags": ["WORLDSPAWN"]
+	"flags": []
   },
   {
 	"id": "grass",
@@ -32,6 +32,6 @@
 	"type": "floor",
 	"atlas": [0, 0],
 	"texture": "grass.png",
-	"flags": ["WORLDSPAWN", "AUTOTILE"]
+	"flags": ["AUTOTILE"]
   },
 ] 

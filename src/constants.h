@@ -22,7 +22,7 @@ public:
     static const int CHUNK_SIZE = 16;
     
     static const uint32_t AUTOTILE_FLAG = 1 << 0;
-    static const uint32_t WORLDSPAWN_FLAG = 1 << 1;
+    static const uint32_t SOLID_FLAG = 1 << 1;
     
     static int get_world_size();
     static int get_tile_size();

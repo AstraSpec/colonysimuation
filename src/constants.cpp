@@ -35,8 +35,8 @@ uint32_t Constants::flags_to_bits(Array flags) {
         
         if (flag == "AUTOTILE") {
             bit_flags |= AUTOTILE_FLAG;
-        } else if (flag == "WORLDSPAWN") {
-            bit_flags |= WORLDSPAWN_FLAG;
+        } else if (flag == "SOLID") {
+            bit_flags |= SOLID_FLAG;
         }
     }
     
