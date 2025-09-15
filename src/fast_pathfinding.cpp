@@ -1,5 +1,6 @@
 #include "fast_pathfinding.h"
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <limits>
 
 using namespace godot;
 
@@ -34,17 +35,13 @@ void FastPathfinding::update_pathfinding(const Dictionary& map_data) {
 		i++;
 		Vector2i cell_position = used_cells.pop_back();
 		
-		if (traversable_cells.has(cell_position)) {
-			continue;
-		}
-		
 		traversable_cells[cell_position] = i;
 	}
 	
-	set_points();
+	set_points(map_data);
 }
 
-void FastPathfinding::set_points() {
+void FastPathfinding::set_points(const Dictionary& map_data) {
 	astar->clear();
 	
 	// Add all traversable cells as points
@@ -57,6 +54,19 @@ void FastPathfinding::set_points() {
 			Vector2i cell_position = key;
 			int point_id = value;
 			float weight_scale = 1.0;
+			Object* cellData = map_data[cell_position];
+			if (cellData) {
+				Array tiles = cellData->get("tiles");
+				for (int t = 0; t < tiles.size(); t++) {
+					Object* tileData = tiles[t];
+					if (!tileData) continue;
+					uint32_t flags = tileData->get("flags");
+					if (flags & Constants::SOLID_FLAG) {
+						weight_scale = std::numeric_limits<float>::infinity();
+						break;
+					}
+				}
+			}
 			
 			astar->add_point(point_id, cell_position, weight_scale);
 		}

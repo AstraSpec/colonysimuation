@@ -9,6 +9,7 @@
 #include <godot_cpp/variant/vector2i.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 #include <array>
+#include "constants.h"
 
 namespace godot {
 
@@ -31,7 +32,7 @@ private:
 	Dictionary traversable_cells;
 	AStar2D* astar;
 	
-	void set_points();
+	void set_points(const Dictionary& map_data);
 	Array get_neighbour(const Vector2i& cell_position);
 
 };
