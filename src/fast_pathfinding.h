@@ -23,7 +23,7 @@ public:
 	FastPathfinding();
 	~FastPathfinding();
 
-	void update_pathfinding(const Dictionary& map_data);
+	void update_pathfinding(const Dictionary& mapData);
 	PackedVector2Array find_path(const Vector2i& start, const Vector2i& end);
 
 private:
@@ -32,8 +32,8 @@ private:
 	Dictionary traversable_cells;
 	AStar2D* astar;
 	
-	void set_points(const Dictionary& map_data);
-	Array get_neighbour(const Vector2i& cell_position);
+	void set_points(const Dictionary& mapData);
+	Array get_neighbour(const Vector2i& cellPos);
 
 };
 

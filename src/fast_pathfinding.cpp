@@ -11,7 +11,7 @@ const std::array<Vector2i, 8> FastPathfinding::DIRECTIONS = {
 
 
 void FastPathfinding::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("update_pathfinding", "map_data"), &FastPathfinding::update_pathfinding);
+	ClassDB::bind_method(D_METHOD("update_pathfinding", "mapData"), &FastPathfinding::update_pathfinding);
 	ClassDB::bind_method(D_METHOD("find_path", "start", "end"), &FastPathfinding::find_path);
 }
 
@@ -25,36 +25,36 @@ FastPathfinding::~FastPathfinding() {
 	}
 }
 
-void FastPathfinding::update_pathfinding(const Dictionary& map_data) {
-	traversable_cells.clear();
+void FastPathfinding::update_pathfinding(const Dictionary& mapData) {
+	traversableCells.clear();
 	
 	int i = 0;
-	Array used_cells = map_data.keys();
+	Array usedCells = mapData.keys();
 	
-	while (used_cells.size() > 0) {
+	while (usedCells.size() > 0) {
 		i++;
-		Vector2i cell_position = used_cells.pop_back();
+		Vector2i cellPos = usedCells.pop_back();
 		
-		traversable_cells[cell_position] = i;
+		traversableCells[cellPos] = i;
 	}
 	
-	set_points(map_data);
+	set_points(mapData);
 }
 
-void FastPathfinding::set_points(const Dictionary& map_data) {
+void FastPathfinding::set_points(const Dictionary& mapData) {
 	astar->clear();
 	
 	// Add all traversable cells as points
-	Array keys = traversable_cells.keys();
+	Array keys = traversableCells.keys();
 	for (int j = 0; j < keys.size(); j++) {
 		Variant key = keys[j];
-		Variant value = traversable_cells[key];
+		Variant value = traversableCells[key];
 		
 		if (key.get_type() == Variant::VECTOR2I && value.get_type() == Variant::INT) {
-			Vector2i cell_position = key;
-			int point_id = value;
-			float weight_scale = 1.0;
-			Object* cellData = map_data[cell_position];
+			Vector2i cellPos = key;
+			int pointID = value;
+			float weightScale = 1.0;
+			Object* cellData = mapData[cellPos];
 			if (cellData) {
 				Array tiles = cellData->get("tiles");
 				for (int t = 0; t < tiles.size(); t++) {
@@ -62,83 +62,83 @@ void FastPathfinding::set_points(const Dictionary& map_data) {
 					if (!tileData) continue;
 					uint32_t flags = tileData->get("flags");
 					if (flags & Constants::SOLID_FLAG) {
-						weight_scale = std::numeric_limits<float>::infinity();
+						weightScale = std::numeric_limits<float>::infinity();
 						break;
 					}
 				}
 			}
 			
-			astar->add_point(point_id, cell_position, weight_scale);
+			astar->add_point(pointID, cellPos, weightScale);
 		}
 	}
 	
 	// Connect points with their neighbours
 	for (int j = 0; j < keys.size(); j++) {
 		Variant key = keys[j];
-		Variant value = traversable_cells[key];
+		Variant value = traversableCells[key];
 		
 		if (key.get_type() == Variant::VECTOR2I && value.get_type() == Variant::INT) {
-			Vector2i cell_position = key;
-			int point_id = value;
+			Vector2i cellPos = key;
+			int pointID = value;
 			
-			Array neighbours = get_neighbour(cell_position);
+			Array neighbours = get_neighbour(cellPos);
 			for (int k = 0; k < neighbours.size(); k++) {
-				Variant neighbour_id = neighbours[k];
-				if (neighbour_id.get_type() == Variant::INT) {
-					astar->connect_points(point_id, neighbour_id);
+				Variant neighbourID = neighbours[k];
+				if (neighbourID.get_type() == Variant::INT) {
+					astar->connect_points(pointID, neighbourID);
 				}
 			}
 		}
 	}
 }
 
-Array FastPathfinding::get_neighbour(const Vector2i& cell_position) {
-	Array return_array;
+Array FastPathfinding::get_neighbour(const Vector2i& cellPos) {
+	Array returnArray;
 	
 	for (int i = 0; i < DIRECTIONS.size(); i++) {
 		Vector2i direction = DIRECTIONS[i];
-		Vector2i neighbour = cell_position + direction;
+		Vector2i neighbour = cellPos + direction;
 			
-			if (!traversable_cells.has(neighbour)) {
+			if (!traversableCells.has(neighbour)) {
 				continue;
 			}
 			
 			// Check if points are already connected
-			Variant current_id_variant = traversable_cells[cell_position];
-			Variant neighbour_id_variant = traversable_cells[neighbour];
+			Variant currentIDvariant = traversableCells[cellPos];
+			Variant neightbourIDvariant = traversableCells[neighbour];
 			
-			if (current_id_variant.get_type() == Variant::INT && 
-				neighbour_id_variant.get_type() == Variant::INT) {
+			if (currentIDvariant.get_type() == Variant::INT && 
+				neightbourIDvariant.get_type() == Variant::INT) {
 				
-				int current_id = current_id_variant;
-				int neighbour_id = neighbour_id_variant;
+				int currentID = currentIDvariant;
+				int neighbourID = neightbourIDvariant;
 				
-				if (!astar->are_points_connected(current_id, neighbour_id)) {
-					return_array.append(neighbour_id);
+				if (!astar->are_points_connected(currentID, neighbourID)) {
+					returnArray.append(neighbourID);
 				}
 			}
 	}
 	
-	return return_array;
+	return returnArray;
 }
 
 PackedVector2Array FastPathfinding::find_path(const Vector2i& start, const Vector2i& end) {
-	if (!traversable_cells.has(start) || !traversable_cells.has(end)) {
+	if (!traversableCells.has(start) || !traversableCells.has(end)) {
 		return PackedVector2Array();
 	}
 	
-	Variant start_id_variant = traversable_cells[start];
-	Variant end_id_variant = traversable_cells[end];
+	Variant startIDvariant = traversableCells[start];
+	Variant endIDvariant = traversableCells[end];
 	
-	if (start_id_variant.get_type() != Variant::INT || end_id_variant.get_type() != Variant::INT) {
+	if (startIDvariant.get_type() != Variant::INT || endIDvariant.get_type() != Variant::INT) {
 		return PackedVector2Array();
 	}
 	
-	int start_id = start_id_variant;
-	int end_id = end_id_variant;
+	int startID = startIDvariant;
+	int endID = endIDvariant;
 	
-	if (astar->has_point(start_id) && astar->has_point(end_id)) {
-		return astar->get_point_path(start_id, end_id);
+	if (astar->has_point(startID) && astar->has_point(endID)) {
+		return astar->get_point_path(startID, endID);
 	} else {
 		return PackedVector2Array();
 	}
