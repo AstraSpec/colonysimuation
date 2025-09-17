@@ -9,15 +9,22 @@ func _init() -> void:
 	load_db("res://data/jobs/")
 
 func add_job(id :String, targetCell :Vector2i, workAmount :float, completeAction :Callable) -> void:
+	for job :JobDef in jobs:
+		if job.targetCell == targetCell and job.id == id:
+			return
+	
 	var Job :JobDef = JobDef.new(id, targetCell, workAmount, completeAction)
 	jobs.append(Job)
 	
 	prints("Job with id:", id, "added at cell:", targetCell)
 
 func find_job() -> JobDef:
-	if jobs.is_empty(): 
-		return null
-	return jobs.pop_front()
+	for job :JobDef in jobs:
+		if !job.reserved:
+			job.reserved = true
+			return job
+		
+	return null
 
 func track_job(job :JobDef) -> void:
 	if progressBars.has(job): return
