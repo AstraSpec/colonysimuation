@@ -21,10 +21,12 @@ func add_job(id :String, targetCell :Vector2i, workAmount :float, completeAction
 func find_job() -> JobDef:
 	for job :JobDef in jobs:
 		if !job.reserved:
-			job.reserved = true
 			return job
 		
 	return null
+
+func reserve_job(job :JobDef) -> void:
+	job.reserved = true
 
 func track_job(job :JobDef) -> void:
 	if progressBars.has(job): return

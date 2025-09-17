@@ -14,6 +14,7 @@ void FastPathfinding::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("update_pathfinding", "mapData"), &FastPathfinding::update_pathfinding);
 	ClassDB::bind_method(D_METHOD("find_path", "start", "end"), &FastPathfinding::find_path);
 	ClassDB::bind_method(D_METHOD("is_cell_accessible", "cellPos"), &FastPathfinding::is_cell_accessible);
+	ClassDB::bind_method(D_METHOD("path_goes_through_solid", "path"), &FastPathfinding::path_goes_through_solid);
 }
 
 FastPathfinding::FastPathfinding() {
@@ -155,5 +156,16 @@ bool FastPathfinding::is_cell_accessible(const Vector2i& cellPos) {
 		}
 	}
 	
+	return false;
+}
+
+bool FastPathfinding::path_goes_through_solid(const PackedVector2Array& path) {
+	// Check each point in the path to see if it's solid
+	for (int i = 0; i < path.size(); i++) {
+		Vector2i cellPos = Vector2i(path[i]);
+		if (solidCells.has(cellPos)) {
+			return true;
+		}
+	}
 	return false;
 }

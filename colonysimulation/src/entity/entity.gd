@@ -10,12 +10,16 @@ var cellPos :Vector2i = Vector2i.ZERO
 var path :PackedVector2Array
 var speed :float = 150.0
 
+const TICK_RATE :float = 1.5
+var tick :float = 0.0
+
 var job :JobDef
 
 func _ready() -> void:
 	position = cellPos * TILE_SIZE
 
 func _process(delta: float) -> void:
+	tick += delta
 	process_pathing(delta)
 	process_job(delta)
 
@@ -36,21 +40,32 @@ func process_pathing(delta :float) -> void:
 
 func process_job(delta :float) -> void:
 	if job == null:
-		find_job()
+		if tick > TICK_RATE:
+			tick = 0
+			find_job()
+			print("PROCESS JOB")
 	
 	elif path.is_empty():
 		execute_job(delta)
 
-func move(targetPos :Vector2i, complete_path :bool = false) -> void:
+func move(targetPos :Vector2i, complete_path :bool = false) -> bool:
 	path = Pathfinding.find_path(cellPos, targetPos)
 	
 	if !complete_path:
 		path.resize(path.size()-1)
+	
+	if Pathfinding.path_goes_through_solid(path):
+		path.clear()
+		return false
+	
+	return true
 
 func find_job() -> void:
 	job = JobManager.find_job()
-	if job:
-		move(job.targetCell, false)
+	if job and move(job.targetCell, false):
+		JobManager.reserve_job(job)
+	else:
+		job = null
 
 func start_job() -> void:
 	JobManager.track_job(job)
