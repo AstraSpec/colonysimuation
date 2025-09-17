@@ -25,11 +25,13 @@ public:
 
 	void update_pathfinding(const Dictionary& mapData);
 	PackedVector2Array find_path(const Vector2i& start, const Vector2i& end);
+	bool is_cell_accessible(const Vector2i& cellPos);
 
 private:
 	static const std::array<Vector2i, 8> DIRECTIONS;
 	
-	Dictionary traversable_cells;
+	Dictionary existingCells;
+	Dictionary solidCells;
 	AStar2D* astar;
 	
 	void set_points(const Dictionary& mapData);
