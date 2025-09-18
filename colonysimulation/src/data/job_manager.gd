@@ -1,5 +1,7 @@
 extends DbManager
 
+signal try_assign_job(job: JobDef)
+
 var TILE_SIZE :int = Constants.get_tile_size()
 
 var jobs :Array[JobDef]
@@ -16,17 +18,23 @@ func add_job(id :String, targetCell :Vector2i, workAmount :float, completeAction
 	var Job :JobDef = JobDef.new(id, targetCell, workAmount, completeAction)
 	jobs.append(Job)
 	
-	prints("Job with id:", id, "added at cell:", targetCell)
+	emit_signal("try_assign_job", Job)
+	prints("Job added:", id, "at:", targetCell)
 
-func find_job() -> JobDef:
+func request_job(Entity :Node2D) -> JobDef:
 	for job :JobDef in jobs:
-		if !job.reserved:
-			return job
-		
+		if not job.reserved:
+			if Entity.path_to_job(job):
+				job.reserved = true
+				return job
 	return null
 
-func reserve_job(job :JobDef) -> void:
-	job.reserved = true
+func find_job(job :JobDef, Entity :Node2D) -> JobDef:
+	if not job.reserved:
+		if Entity.path_to_job(job):
+			job.reserved = true
+			return job
+	return null
 
 func track_job(job :JobDef) -> void:
 	if progressBars.has(job): return
