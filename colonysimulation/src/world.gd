@@ -44,6 +44,9 @@ func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
 	
 	# Region
 	Regions.add_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
+	
+	# Pathfinding
+	Pathfinding.update_tile_point(cellPos, mapData)
 
 func clear_cell(cellPos :Vector2i, layer :int) -> void:
 	var cellData :CellDef = mapData[cellPos]
@@ -64,6 +67,9 @@ func clear_cell(cellPos :Vector2i, layer :int) -> void:
 	
 	# Region
 	Regions.remove_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
+	
+	# Pathfinding
+	Pathfinding.update_tile_point(cellPos, mapData)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:

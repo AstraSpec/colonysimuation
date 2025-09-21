@@ -15,6 +15,7 @@ void FastPathfinding::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("find_path", "start", "end"), &FastPathfinding::find_path);
 	ClassDB::bind_method(D_METHOD("is_cell_accessible", "cellPos"), &FastPathfinding::is_cell_accessible);
 	ClassDB::bind_method(D_METHOD("path_goes_through_solid", "path"), &FastPathfinding::path_goes_through_solid);
+	ClassDB::bind_method(D_METHOD("update_tile_point", "cellPos", "mapData"), &FastPathfinding::update_tile_point);
 }
 
 FastPathfinding::FastPathfinding() {
@@ -168,4 +169,39 @@ bool FastPathfinding::path_goes_through_solid(const PackedVector2Array& path) {
 		}
 	}
 	return false;
+}
+
+void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionary& mapData) {
+	if (!existingCells.has(cellPos)) {
+		return;
+	}
+	
+	int pointID = existingCells[cellPos];
+	float weightScale = 1.0;
+	bool hasSolidFlag = false;
+	
+	// Check if cell has solid flags
+	Object* cellData = mapData[cellPos];
+	if (cellData) {
+		Array tiles = cellData->get("tiles");
+		for (int t = 0; t < tiles.size(); t++) {
+			Object* tileData = tiles[t];
+			if (!tileData) continue;
+			uint32_t flags = tileData->get("flags");
+			if (flags & Constants::SOLID_FLAG) {
+				weightScale = std::numeric_limits<float>::infinity();
+				hasSolidFlag = true;
+				break;
+			}
+		}
+	}
+	
+	// Update solid cells tracking
+	if (hasSolidFlag) {
+		solidCells[cellPos] = pointID;
+	} else {
+		solidCells.erase(cellPos);
+	}
+	
+	astar->set_point_weight_scale(pointID, weightScale);
 }
