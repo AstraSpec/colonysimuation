@@ -20,7 +20,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	process_pathing(delta)
 	process_job(delta)
-	#print(job)
 
 func process_pathing(delta :float) -> void:
 	if path.size() > 0:

@@ -13,6 +13,10 @@ static var TILE_SIZE :int = Constants.get_tile_size()
 var mapData :Dictionary
 var mouseCellPos :Vector2i
 
+var dragCellOrigin :Vector2i
+var isDragging :bool = false
+var dragAppliedCells :Dictionary = {}
+
 var pendingAction :ActionDef
 
 func start() -> void:
@@ -75,15 +79,23 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
 	
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_RIGHT:
-			if Entities.selected:
-				Entities.selected.move(mouseCellPos, true)
-			clear_action()
-		
-		elif event.button_index == MOUSE_BUTTON_LEFT:
-			process_action()
-			Entities.update_selected(null)
+	if event is InputEventMouseButton:
+		if event.pressed:
+			if event.button_index == MOUSE_BUTTON_RIGHT:
+				if Entities.selected:
+					Entities.selected.move(mouseCellPos, true)
+				if isDragging:
+					_end_drag()
+				else:
+					clear_action()
+			
+			elif event.button_index == MOUSE_BUTTON_LEFT:
+				process_action()
+				Entities.update_selected(null)
+		else:
+			if event.button_index == MOUSE_BUTTON_LEFT and isDragging:
+				_apply_drag_rect(dragCellOrigin, mouseCellPos)
+				_end_drag()
 
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		clear_action()
@@ -128,6 +140,44 @@ func clear_action() -> void:
 
 func get_mouse_cell_pos() -> Vector2i:
 	return mouseCellPos
+
+func drag_cell(_action: Callable, _args: Array) -> void:
+	dragCellOrigin = mouseCellPos
+	isDragging = true
+	dragAppliedCells.clear()
+
+func _apply_drag_rect(fromCell: Vector2i, toCell: Vector2i) -> void:
+	var min_x: int = min(fromCell.x, toCell.x)
+	var max_x: int = max(fromCell.x, toCell.x)
+	var min_y: int = min(fromCell.y, toCell.y)
+	var max_y: int = max(fromCell.y, toCell.y)
+	
+	if pendingAction and pendingAction.args.size() >= 2:
+		var drag_callable :Callable = pendingAction.args[0]
+		var drag_args_template :Array = pendingAction.args[1]
+		
+		if drag_callable.is_valid():
+			for y in range(min_y, max_y + 1):
+				for x in range(min_x, max_x + 1):
+					var cellPos: Vector2i = Vector2i(x, y)
+					
+					if dragAppliedCells.has(cellPos):
+						continue
+					dragAppliedCells[cellPos] = true
+					var resolved_args: Array = []
+					
+					for arg in drag_args_template:
+						resolved_args.append(resolve_callables(arg))
+					
+					if resolved_args.size() > 0:
+						resolved_args[0] = cellPos
+					
+					drag_callable.callv(resolved_args)
+
+func _end_drag() -> void:
+	isDragging = false
+	dragAppliedCells.clear()
+	clear_action()
 
 func start_mining_job(cellPos :Vector2i) -> void:
 	var wallData :TileDef = mapData[cellPos].tiles[2]
