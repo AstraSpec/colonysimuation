@@ -16,6 +16,7 @@ var mouseCellPos :Vector2i
 var dragCellOrigin :Vector2i
 var isDragging :bool = false
 var dragAppliedCells :Dictionary = {}
+var dragSelection :RectangleShape2D = RectangleShape2D.new()
 
 var pendingAction :ActionDef
 
@@ -76,6 +77,8 @@ func clear_cell(cellPos :Vector2i, layer :int) -> void:
 	Pathfinding.update_tile_point(cellPos, mapData)
 
 func _unhandled_input(event: InputEvent) -> void:
+	queue_redraw()
+	
 	if event is InputEventMouseMotion:
 		update_mouse_cell_pos()
 	
@@ -178,6 +181,13 @@ func _end_drag() -> void:
 	isDragging = false
 	dragAppliedCells.clear()
 	clear_action()
+
+func _draw() -> void:
+	if isDragging:
+		var topLeft: Vector2i = Vector2i(min(dragCellOrigin.x, mouseCellPos.x), min(dragCellOrigin.y, mouseCellPos.y))
+		var bottomRight: Vector2i = Vector2i(max(dragCellOrigin.x, mouseCellPos.x), max(dragCellOrigin.y, mouseCellPos.y)) + Vector2i(1, 1)
+		var rect := Rect2(Vector2(topLeft * TILE_SIZE), Vector2((bottomRight - topLeft) * TILE_SIZE))
+		draw_rect(rect, Color.WHITE, false, 2.0)
 
 func start_mining_job(cellPos :Vector2i) -> void:
 	var wallData :TileDef = mapData[cellPos].tiles[2]

@@ -32,6 +32,7 @@ zoom = Vector2(0.5, 0.5)
 script = ExtResource("2_qyceu")
 
 [node name="World" type="Node2D" parent="." node_paths=PackedStringArray("WorldGeneration", "Regions", "Entities", "Tilemap", "Pathfinding", "WorldInfo", "ActionHint")]
+top_level = true
 script = ExtResource("3_xaeo1")
 WorldGeneration = NodePath("WorldGeneration")
 Regions = NodePath("Regions")
@@ -42,10 +43,12 @@ WorldInfo = NodePath("../UI/WorldInfo")
 ActionHint = NodePath("../UI/ActionHint")
 
 [node name="FastTerrain" type="TextureRect" parent="World"]
+show_behind_parent = true
 material = SubResource("ShaderMaterial_kmafp")
 script = ExtResource("5_bk7fs")
 
 [node name="FastTileMap" type="FastTileMap" parent="World"]
+show_behind_parent = true
 
 [node name="Regions" type="Region" parent="World"]
 script = ExtResource("5_el486")
