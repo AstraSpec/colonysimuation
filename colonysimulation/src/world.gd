@@ -180,7 +180,6 @@ func _apply_drag_rect(fromCell: Vector2i, toCell: Vector2i) -> void:
 func _end_drag() -> void:
 	isDragging = false
 	dragAppliedCells.clear()
-	clear_action()
 
 func _draw() -> void:
 	if isDragging:
