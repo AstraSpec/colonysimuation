@@ -22,11 +22,10 @@ var pendingAction :ActionDef
 
 func start() -> void:
 	mapData = WorldGeneration.generate_world()
-	#var timer1 = Time.get_ticks_msec()
 	Regions.generate_regions(mapData)
-	#var timer2 = Time.get_ticks_msec()
-	#print("Msec: " + str(timer2-timer1))
 	Pathfinding.update_pathfinding(mapData)
+	
+	z_index = Constants.get_world_size()
 	
 	Entities.summon_entity(Vector2i(126, 126))
 
@@ -89,6 +88,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					Entities.selected.move(mouseCellPos, true)
 				if isDragging:
 					_end_drag()
+					clear_action()
 				else:
 					clear_action()
 			
