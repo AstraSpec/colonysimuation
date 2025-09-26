@@ -187,6 +187,9 @@ func _draw() -> void:
 		var bottomRight: Vector2i = Vector2i(max(dragCellOrigin.x, mouseCellPos.x), max(dragCellOrigin.y, mouseCellPos.y)) + Vector2i(1, 1)
 		var rect := Rect2(Vector2(topLeft * TILE_SIZE), Vector2((bottomRight - topLeft) * TILE_SIZE))
 		draw_rect(rect, Color.WHITE, false, 2.0)
+	elif pendingAction:
+		var rect := Rect2(mouseCellPos * TILE_SIZE, Vector2(TILE_SIZE, TILE_SIZE))
+		draw_rect(rect, Color.WHITE, false, 2.0)
 
 func start_mining_job(cellPos :Vector2i) -> void:
 	var wallData :TileDef = mapData[cellPos].tiles[2]
