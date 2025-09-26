@@ -191,11 +191,12 @@ func _draw() -> void:
 
 func start_mining_job(cellPos :Vector2i) -> void:
 	var wallData :TileDef = mapData[cellPos].tiles[2]
-	if wallData == null: return
+	if wallData == null: 
+		return
 	
 	var workAmount = wallData.work
 	
-	JobManager.add_job("mine", mouseCellPos, workAmount, Callable(self, "complete_mining_job"))
+	JobManager.add_job("mine", cellPos, workAmount, Callable(self, "complete_mining_job"))
 
 func complete_mining_job(cellPos :Vector2i) -> void:
 	clear_cell(cellPos, 2)
