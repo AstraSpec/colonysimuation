@@ -28,9 +28,6 @@ func generate_world() -> Dictionary:
 		var cellPos := Vector2i(i / WORLD_SIZE, i % WORLD_SIZE)
 		mapData[cellPos] = process_tile(cellPos)
 	
-	mapData[Vector2i(30, 227)].tiles[3] = TileManager.tileDb["pointer"]
-	#mapData[Vector2i(126, 130)].tiles[3] = TileManager.tileDb["pointer"]
-	
 	render_map(mapData)
 	
 	return mapData
@@ -48,7 +45,6 @@ func process_tile(cellPos :Vector2i) -> CellDef:
 	
 	Cell.tiles.append(process_terrain(noise))
 	Cell.tiles.append(process_floor(noise))
-	Cell.tiles.append(process_wall(noise))
 	Cell.tiles.append(process_object(noise))
 	
 	Cell.chunk = Vector2i(cellPos.x / CHUNK_SIZE, cellPos.y / CHUNK_SIZE)
@@ -62,12 +58,6 @@ func process_terrain(noise :Dictionary) -> TileDef:
 	
 	return TileManager.tileDb[type]
 
-func process_wall(noise :Dictionary) -> TileDef:
-	if noise.elevation > CLIFF_THRESHOLD:
-		var type :String = "stone_wall" if noise.geology > 0.0 else "mud_wall"
-		return TileManager.tileDb[type]
-	return null
-
 func process_floor(noise :Dictionary) -> TileDef:
 	if noise.elevation <= TERRAIN_THRESHOLD:
 		if noise.grass > GRASS_THRESHOLD:
@@ -75,7 +65,11 @@ func process_floor(noise :Dictionary) -> TileDef:
 	return null
 
 func process_object(noise :Dictionary) -> TileDef:
-	if noise.elevation <= TERRAIN_THRESHOLD:
+	if noise.elevation > CLIFF_THRESHOLD:
+		var type :String = "stone_wall" if noise.geology > 0.0 else "mud_wall"
+		return TileManager.tileDb[type]
+	
+	elif noise.elevation <= TERRAIN_THRESHOLD:
 		var vegetation :String = get_vegetation(noise)
 		if vegetation != "":
 			return TileManager.tileDb[vegetation]
@@ -115,8 +109,3 @@ func get_terrain_cells(mapData :Dictionary) -> Dictionary:
 			grouped[tileDef].append(cellPos)
 	
 	return grouped
-
-func get_total_autotile_cells(wallDb :Dictionary) -> Array:
-	var total :Array = []
-	for tileData in wallDb: total.append_array(wallDb[tileData])
-	return total
