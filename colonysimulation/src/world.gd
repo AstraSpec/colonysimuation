@@ -166,6 +166,7 @@ func _apply_drag_rect(fromCell: Vector2i, toCell: Vector2i) -> void:
 					
 					if dragAppliedCells.has(cellPos):
 						continue
+					
 					dragAppliedCells[cellPos] = true
 					var resolved_args: Array = []
 					
@@ -187,15 +188,43 @@ func _draw() -> void:
 		var bottomRight: Vector2i = Vector2i(max(dragCellOrigin.x, mouseCellPos.x), max(dragCellOrigin.y, mouseCellPos.y)) + Vector2i(1, 1)
 		var rect := Rect2(Vector2(topLeft * TILE_SIZE), Vector2((bottomRight - topLeft) * TILE_SIZE))
 		draw_rect(rect, Color.WHITE, false, 2.0)
+		
+		if pendingAction.validation:
+			_draw_selectable_overlay_in_area(topLeft, bottomRight)
+	
 	elif pendingAction:
 		var rect := Rect2(mouseCellPos * TILE_SIZE, Vector2(TILE_SIZE, TILE_SIZE))
 		draw_rect(rect, Color.WHITE, false, 2.0)
 
+func _draw_selectable_overlay_in_area(topLeft: Vector2i, bottomRight: Vector2i) -> void:
+	if not pendingAction or not pendingAction.validation or not pendingAction.validation.is_valid():
+		return
+		
+	for y in range(topLeft.y, bottomRight.y):
+		for x in range(topLeft.x, bottomRight.x):
+			var cellPos = Vector2i(x, y)
+			if pendingAction.validation.call(cellPos):
+				var rect = Rect2(Vector2(cellPos * TILE_SIZE), Vector2(TILE_SIZE, TILE_SIZE))
+				draw_rect(rect, Color(1, 1, 1, 0.3), true)  # Semi-transparent white
+
+func validate_mining_job(cellPos: Vector2i) -> bool:
+	if not mapData.has(cellPos):
+		return false
+	
+	var cellData = mapData[cellPos]
+	var objectData = cellData.tiles[2]
+	
+	if objectData == null:
+		return false
+	
+	# Check if tile has WALL flag
+	return Constants.has_flag(objectData.flags, "WALL")
+
 func start_mining_job(cellPos :Vector2i) -> void:
-	var wallData :TileDef = mapData[cellPos].tiles[2]
-	if wallData == null: 
+	if not validate_mining_job(cellPos):
 		return
 	
+	var wallData :TileDef = mapData[cellPos].tiles[2]
 	var workAmount = wallData.work
 	
 	JobManager.add_job("mine", cellPos, workAmount, Callable(self, "complete_mining_job"))

@@ -23,11 +23,13 @@ public:
     
     static const uint32_t AUTOTILE_FLAG = 1 << 0;
     static const uint32_t SOLID_FLAG = 1 << 1;
+    static const uint32_t WALL_FLAG = 1 << 2;
     
     static int get_world_size();
     static int get_tile_size();
     static int get_chunk_size();
     static uint32_t flags_to_bits(Array flags);
+    static bool has_flag(uint32_t flags, const String& flag_name);
 
 };
 
