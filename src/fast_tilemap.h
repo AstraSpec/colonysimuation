@@ -35,6 +35,7 @@ protected:
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
     std::unordered_map<int, RID> y_level_canvas_items;
+    std::unordered_map<Vector2i, RID> work_canvas_items;
 
     std::unordered_map<int, std::unordered_set<Vector2i>> autotile_positions;
     void set_autotile_positions(Dictionary mapData);
@@ -53,6 +54,10 @@ public:
     Vector2i get_autotile_variant(Vector2i cellPos, int layer);
 
     void update_y_canvas_item(int y_level, Dictionary mapData);
+    
+    void add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture);
+    void remove_work_canvas_item(Vector2i cellPos);
+    void clear_all_work_canvas_items();
 };
 
 }

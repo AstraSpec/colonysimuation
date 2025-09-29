@@ -8,6 +8,8 @@ extends Node2D
 @export var WorldInfo :Label
 @export var ActionHint :Control
 
+@onready var Icons :Texture2D = preload("res://assets/tiles/icons.png")
+
 static var TILE_SIZE :int = Constants.get_tile_size()
 
 var mapData :Dictionary
@@ -227,7 +229,10 @@ func start_mining_job(cellPos :Vector2i) -> void:
 	var wallData :TileDef = mapData[cellPos].tiles[2]
 	var workAmount = wallData.work
 	
+	Tilemap.add_work_canvas_item(cellPos, Icons)
+	
 	JobManager.add_job("mine", cellPos, workAmount, Callable(self, "complete_mining_job"))
 
 func complete_mining_job(cellPos :Vector2i) -> void:
+	Tilemap.remove_work_canvas_item(cellPos)
 	clear_cell(cellPos, 2)

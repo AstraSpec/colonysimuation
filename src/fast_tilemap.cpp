@@ -58,6 +58,9 @@ void FastTileMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("update_y_canvas_item", "y_level", "mapData"), &FastTileMap::update_y_canvas_item);
     ClassDB::bind_method(D_METHOD("add_autotile_position", "cellPos", "tileData"), &FastTileMap::add_autotile_position);
     ClassDB::bind_method(D_METHOD("clear_autotile_position", "cellPos", "layer"), &FastTileMap::clear_autotile_position);
+    ClassDB::bind_method(D_METHOD("add_work_canvas_item", "cellPos", "texture"), &FastTileMap::add_work_canvas_item);
+    ClassDB::bind_method(D_METHOD("remove_work_canvas_item", "cellPos"), &FastTileMap::remove_work_canvas_item);
+    ClassDB::bind_method(D_METHOD("clear_all_work_canvas_items"), &FastTileMap::clear_all_work_canvas_items);
 }
 
 FastTileMap::FastTileMap() {
@@ -76,6 +79,8 @@ FastTileMap::~FastTileMap() {
         }
     }
     y_level_canvas_items.clear();
+    
+    clear_all_work_canvas_items();
 }
 
 void FastTileMap::redraw_tiles(Dictionary mapData) {
@@ -242,4 +247,44 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, int layer) {
         return it->second;
     }
     return Vector2i(0, 0);
+}
+
+void FastTileMap::add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture) {
+    // Check if work canvas item already exists for this cell
+    if (work_canvas_items.find(cellPos) != work_canvas_items.end()) {
+        return;
+    }
+    
+    RID canvas_item = RenderingServer::get_singleton()->canvas_item_create();
+    RID parent_canvas = get_canvas();
+    RenderingServer::get_singleton()->canvas_item_set_parent(canvas_item, parent_canvas);
+    
+    // Set position
+    Vector2 world_pos = Vector2(cellPos * TILE_SIZE);
+    RenderingServer::get_singleton()->canvas_item_set_transform(canvas_item, Transform2D(0, world_pos));
+    RenderingServer::get_singleton()->canvas_item_set_z_index(canvas_item, Constants::WORLD_SIZE + 1);
+    
+    // Load icons texture
+    if (texture.is_valid()) {
+        Rect2 src_rect = Rect2(0, 0, TILE_SIZE, TILE_SIZE);
+        Rect2 dest_rect = Rect2(0, 0, TILE_SIZE, TILE_SIZE);
+        RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(canvas_item, dest_rect, texture->get_rid(), src_rect);
+    }
+    
+    work_canvas_items[cellPos] = canvas_item;
+}
+
+void FastTileMap::remove_work_canvas_item(Vector2i cellPos) {
+    auto it = work_canvas_items.find(cellPos);
+    if (it != work_canvas_items.end()) {
+        RenderingServer::get_singleton()->free_rid(it->second);
+        work_canvas_items.erase(it);
+    }
+}
+
+void FastTileMap::clear_all_work_canvas_items() {
+    for (auto& pair : work_canvas_items) {
+        RenderingServer::get_singleton()->free_rid(pair.second);
+    }
+    work_canvas_items.clear();
 }
