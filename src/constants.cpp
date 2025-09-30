@@ -40,6 +40,8 @@ uint32_t Constants::flags_to_bits(Array flags) {
             bit_flags |= SOLID_FLAG;
         } else if (flag == "WALL") {
             bit_flags |= WALL_FLAG;
+        } else if (flag == "TREE") {
+            bit_flags |= TREE_FLAG;
         }
     }
     
@@ -53,6 +55,8 @@ bool Constants::has_flag(uint32_t flags, const String& flag_name) {
         return (flags & SOLID_FLAG) != 0;
     } else if (flag_name == "WALL") {
         return (flags & WALL_FLAG) != 0;
+    } else if (flag_name == "TREE") {
+        return (flags & TREE_FLAG) != 0;
     }
     return false;
 } 

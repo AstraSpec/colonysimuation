@@ -24,6 +24,7 @@ public:
     static const uint32_t AUTOTILE_FLAG = 1 << 0;
     static const uint32_t SOLID_FLAG = 1 << 1;
     static const uint32_t WALL_FLAG = 1 << 2;
+    static const uint32_t TREE_FLAG = 1 << 3;
     
     static int get_world_size();
     static int get_tile_size();

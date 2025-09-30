@@ -12,7 +12,7 @@
 	"size": [1, 2],
 	"offset": [0, -1],
 	"texture": "objects.png",
-	"flags": ["TALL", "SOLID"]
+	"flags": ["TALL", "SOLID", "TREE"]
   },
   {
 	"id": "tall_grass1",

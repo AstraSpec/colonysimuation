@@ -226,13 +226,41 @@ func start_mining_job(cellPos :Vector2i) -> void:
 	if not validate_mining_job(cellPos):
 		return
 	
-	var wallData :TileDef = mapData[cellPos].tiles[2]
-	var workAmount = wallData.work
+	var objectData :TileDef = mapData[cellPos].tiles[2]
+	var workAmount = objectData.work
 	
 	Tilemap.add_work_canvas_item(cellPos, Icons)
 	
 	JobManager.add_job("mine", cellPos, workAmount, Callable(self, "complete_mining_job"))
 
 func complete_mining_job(cellPos :Vector2i) -> void:
+	Tilemap.remove_work_canvas_item(cellPos)
+	clear_cell(cellPos, 2)
+
+func validate_logging_job(cellPos: Vector2i) -> bool:
+	if not mapData.has(cellPos):
+		return false
+	
+	var cellData = mapData[cellPos]
+	var objectData = cellData.tiles[2]
+	
+	if objectData == null:
+		return false
+	
+	# Check if tile has TREE flag
+	return Constants.has_flag(objectData.flags, "TREE")
+
+func start_logging_job(cellPos :Vector2i) -> void:
+	if not validate_logging_job(cellPos):
+		return
+	
+	var objectData :TileDef = mapData[cellPos].tiles[2]
+	var workAmount = objectData.work
+	
+	Tilemap.add_work_canvas_item(cellPos, Icons)
+	
+	JobManager.add_job("log", cellPos, workAmount, Callable(self, "complete_logging_job"))
+
+func complete_logging_job(cellPos :Vector2i) -> void:
 	Tilemap.remove_work_canvas_item(cellPos)
 	clear_cell(cellPos, 2)
