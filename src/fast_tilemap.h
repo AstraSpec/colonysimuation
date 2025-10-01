@@ -55,7 +55,7 @@ public:
 
     void update_y_canvas_item(int y_level, Dictionary mapData);
     
-    void add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture);
+    void add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas);
     void remove_work_canvas_item(Vector2i cellPos);
     void clear_all_work_canvas_items();
 };

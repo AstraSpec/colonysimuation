@@ -1,6 +1,8 @@
 extends DbManager
 
 signal try_assign_job(job: JobDef)
+signal job_assigned(entity: Node2D, job: JobDef)
+signal job_cleared(job: JobDef)
 
 var TILE_SIZE :int = Constants.get_tile_size()
 
@@ -19,13 +21,13 @@ func add_job(id :String, targetCell :Vector2i, workAmount :float, completeAction
 	jobs.append(Job)
 	
 	emit_signal("try_assign_job", Job)
-	prints("Job added:", id, "at:", targetCell)
 
 func request_job(Entity :Node2D) -> JobDef:
 	for job :JobDef in jobs:
 		if not job.reserved:
 			if Entity.path_to_job(job):
 				job.reserved = true
+				emit_signal("job_assigned", Entity, job)
 				return job
 	return null
 
@@ -33,6 +35,7 @@ func find_job(job :JobDef, Entity :Node2D) -> JobDef:
 	if not job.reserved:
 		if Entity.path_to_job(job):
 			job.reserved = true
+			emit_signal("job_assigned", Entity, job)
 			return job
 	return null
 
@@ -57,3 +60,4 @@ func clear_job(job :JobDef) -> void:
 	
 	progressBars[job].queue_free()
 	progressBars.erase(job)
+	emit_signal("job_cleared", job)

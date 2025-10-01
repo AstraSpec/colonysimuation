@@ -58,7 +58,7 @@ void FastTileMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("update_y_canvas_item", "y_level", "mapData"), &FastTileMap::update_y_canvas_item);
     ClassDB::bind_method(D_METHOD("add_autotile_position", "cellPos", "tileData"), &FastTileMap::add_autotile_position);
     ClassDB::bind_method(D_METHOD("clear_autotile_position", "cellPos", "layer"), &FastTileMap::clear_autotile_position);
-    ClassDB::bind_method(D_METHOD("add_work_canvas_item", "cellPos", "texture"), &FastTileMap::add_work_canvas_item);
+    ClassDB::bind_method(D_METHOD("add_work_canvas_item", "cellPos", "texture", "atlas"), &FastTileMap::add_work_canvas_item);
     ClassDB::bind_method(D_METHOD("remove_work_canvas_item", "cellPos"), &FastTileMap::remove_work_canvas_item);
     ClassDB::bind_method(D_METHOD("clear_all_work_canvas_items"), &FastTileMap::clear_all_work_canvas_items);
 }
@@ -249,11 +249,8 @@ Vector2i FastTileMap::get_autotile_variant(Vector2i cellPos, int layer) {
     return Vector2i(0, 0);
 }
 
-void FastTileMap::add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture) {
-    // Check if work canvas item already exists for this cell
-    if (work_canvas_items.find(cellPos) != work_canvas_items.end()) {
-        return;
-    }
+void FastTileMap::add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas) {
+    remove_work_canvas_item(cellPos);
     
     RID canvas_item = RenderingServer::get_singleton()->canvas_item_create();
     RID parent_canvas = get_canvas();
@@ -264,10 +261,10 @@ void FastTileMap::add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture)
     RenderingServer::get_singleton()->canvas_item_set_transform(canvas_item, Transform2D(0, world_pos));
     RenderingServer::get_singleton()->canvas_item_set_z_index(canvas_item, Constants::WORLD_SIZE + 1);
     
-    // Load icons texture
+    // Draw provided texture region
     if (texture.is_valid()) {
-        Rect2 src_rect = Rect2(0, 0, TILE_SIZE, TILE_SIZE);
         Rect2 dest_rect = Rect2(0, 0, TILE_SIZE, TILE_SIZE);
+        Rect2 src_rect = Rect2(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(canvas_item, dest_rect, texture->get_rid(), src_rect);
     }
     
