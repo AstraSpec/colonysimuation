@@ -1,5 +1,6 @@
 #include "fast_pathfinding.h"
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/time.hpp>
 #include <limits>
 
 using namespace godot;
@@ -64,7 +65,7 @@ void FastPathfinding::set_points(const Dictionary& mapData) {
 		
 		existingCells[cellPos] = pointID;
 		if (hasSolidFlag) {
-			solidCells[cellPos] = pointID;
+			solidCells.insert(cellPos);
 		}
 		
 		// Add point to A* graph
@@ -76,7 +77,7 @@ void FastPathfinding::set_points(const Dictionary& mapData) {
 	for (int j = 0; j < keys.size(); j++) {
 		Vector2i cellPos = keys[j];
 		
-		if (existingCells.has(cellPos)) {
+		if (existingCells.find(cellPos) != existingCells.end()) {
 			int pointID = existingCells[cellPos];
 			
 			Array neighbours = get_neighbour(cellPos);
@@ -97,23 +98,16 @@ Array FastPathfinding::get_neighbour(const Vector2i& cellPos) {
 		Vector2i direction = DIRECTIONS[i];
 		Vector2i neighbour = cellPos + direction;
 			
-			if (!existingCells.has(neighbour)) {
+			if (existingCells.find(neighbour) == existingCells.end()) {
 				continue;
 			}
 			
 			// Check if points are already connected
-			Variant currentIDvariant = existingCells[cellPos];
-			Variant neightbourIDvariant = existingCells[neighbour];
+			int currentID = existingCells[cellPos];
+			int neighbourID = existingCells[neighbour];
 			
-			if (currentIDvariant.get_type() == Variant::INT && 
-				neightbourIDvariant.get_type() == Variant::INT) {
-				
-				int currentID = currentIDvariant;
-				int neighbourID = neightbourIDvariant;
-				
-				if (!astar->are_points_connected(currentID, neighbourID)) {
-					returnArray.append(neighbourID);
-				}
+			if (!astar->are_points_connected(currentID, neighbourID)) {
+				returnArray.append(neighbourID);
 			}
 	}
 	
@@ -121,19 +115,14 @@ Array FastPathfinding::get_neighbour(const Vector2i& cellPos) {
 }
 
 PackedVector2Array FastPathfinding::find_path(const Vector2i& start, const Vector2i& end) {
-	if (!existingCells.has(start) || !existingCells.has(end)) {
+	auto startIt = existingCells.find(start);
+	auto endIt = existingCells.find(end);
+	if (startIt == existingCells.end() || endIt == existingCells.end()) {
 		return PackedVector2Array();
 	}
 	
-	Variant startIDvariant = existingCells[start];
-	Variant endIDvariant = existingCells[end];
-	
-	if (startIDvariant.get_type() != Variant::INT || endIDvariant.get_type() != Variant::INT) {
-		return PackedVector2Array();
-	}
-	
-	int startID = startIDvariant;
-	int endID = endIDvariant;
+	int startID = startIt->second;
+	int endID = endIt->second;
 	
 	if (astar->has_point(startID) && astar->has_point(endID)) {
 		return astar->get_point_path(startID, endID);
@@ -143,7 +132,7 @@ PackedVector2Array FastPathfinding::find_path(const Vector2i& start, const Vecto
 }
 
 bool FastPathfinding::is_cell_accessible(const Vector2i& cellPos) {
-	if (!existingCells.has(cellPos)) {
+	if (existingCells.find(cellPos) == existingCells.end()) {
 		return false;
 	}
 	
@@ -152,7 +141,7 @@ bool FastPathfinding::is_cell_accessible(const Vector2i& cellPos) {
 		Vector2i direction = DIRECTIONS[i];
 		Vector2i neighbour = cellPos + direction;
 		
-		if (!solidCells.has(neighbour)) {
+		if (solidCells.find(neighbour) == solidCells.end()) {
 			return true;
 		}
 	}
@@ -164,7 +153,7 @@ bool FastPathfinding::path_goes_through_solid(const PackedVector2Array& path) {
 	// Check each point in the path to see if it's solid
 	for (int i = 0; i < path.size(); i++) {
 		Vector2i cellPos = Vector2i(path[i]);
-		if (solidCells.has(cellPos)) {
+		if (solidCells.find(cellPos) != solidCells.end()) {
 			return true;
 		}
 	}
@@ -172,11 +161,12 @@ bool FastPathfinding::path_goes_through_solid(const PackedVector2Array& path) {
 }
 
 void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionary& mapData) {
-	if (!existingCells.has(cellPos)) {
+	auto it = existingCells.find(cellPos);
+	if (it == existingCells.end()) {
 		return;
 	}
 	
-	int pointID = existingCells[cellPos];
+	int pointID = it->second;
 	float weightScale = 1.0;
 	bool hasSolidFlag = false;
 	
@@ -198,7 +188,7 @@ void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionar
 	
 	// Update solid cells tracking
 	if (hasSolidFlag) {
-		solidCells[cellPos] = pointID;
+		solidCells.insert(cellPos);
 	} else {
 		solidCells.erase(cellPos);
 	}

@@ -10,6 +10,9 @@
 #include <godot_cpp/variant/vector2.hpp>
 #include <array>
 #include "constants.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <cstdint>
 
 namespace godot {
 
@@ -33,8 +36,20 @@ public:
 private:
 	static const std::array<Vector2i, 8> DIRECTIONS;
 	
-	Dictionary existingCells;
-	Dictionary solidCells;
+    struct Vector2iHasher {
+        size_t operator()(const Vector2i &v) const noexcept {
+            // Combine x and y into a 64-bit then fold to size_t
+            uint64_t x = static_cast<uint64_t>(static_cast<uint32_t>(v.x));
+            uint64_t y = static_cast<uint64_t>(static_cast<uint32_t>(v.y));
+            uint64_t mixed = (x << 32) ^ y;
+            return static_cast<size_t>(mixed ^ (mixed >> 33));
+        }
+    };
+
+    // Fast lookup for existing cell -> point id
+    std::unordered_map<Vector2i, int, Vector2iHasher> existingCells;
+    // Fast lookup for solid cells
+    std::unordered_set<Vector2i, Vector2iHasher> solidCells;
 	AStar2D* astar;
 	
 	void set_points(const Dictionary& mapData);
