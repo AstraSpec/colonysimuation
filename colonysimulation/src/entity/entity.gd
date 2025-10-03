@@ -41,6 +41,9 @@ func process_job(delta :float) -> void:
 		execute_job(delta)
 
 func move(targetPos :Vector2i, complete_path :bool = false) -> bool:
+	if !Pathfinding.is_end_reachable(targetPos):
+		return false
+		
 	path = Pathfinding.find_path(cellPos, targetPos)
 	
 	if !complete_path:

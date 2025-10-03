@@ -30,6 +30,7 @@ public:
 	PackedVector2Array find_path(const Vector2i& start, const Vector2i& end);
 	bool is_cell_accessible(const Vector2i& cellPos);
 	bool path_goes_through_solid(const PackedVector2Array& path);
+	bool is_end_reachable(const Vector2i& end);
 	
 	void update_tile_point(const Vector2i& cellPos, const Dictionary& mapData);
 

@@ -16,6 +16,7 @@ void FastPathfinding::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("find_path", "start", "end"), &FastPathfinding::find_path);
 	ClassDB::bind_method(D_METHOD("is_cell_accessible", "cellPos"), &FastPathfinding::is_cell_accessible);
 	ClassDB::bind_method(D_METHOD("path_goes_through_solid", "path"), &FastPathfinding::path_goes_through_solid);
+	ClassDB::bind_method(D_METHOD("is_end_reachable", "end"), &FastPathfinding::is_end_reachable);
 	ClassDB::bind_method(D_METHOD("update_tile_point", "cellPos", "mapData"), &FastPathfinding::update_tile_point);
 }
 
@@ -44,7 +45,6 @@ void FastPathfinding::set_points(const Dictionary& mapData) {
 	
 	for (int j = 0; j < keys.size(); j++) {
 		Vector2i cellPos = keys[j];
-		float weightScale = 1.0;
 		bool hasSolidFlag = false;
 		
 		// Check if cell has solid flags
@@ -56,7 +56,6 @@ void FastPathfinding::set_points(const Dictionary& mapData) {
 				if (!tileData) continue;
 				uint32_t flags = tileData->get("flags");
 				if (flags & Constants::SOLID_FLAG) {
-					weightScale = std::numeric_limits<float>::infinity();
 					hasSolidFlag = true;
 					break;
 				}
@@ -68,7 +67,8 @@ void FastPathfinding::set_points(const Dictionary& mapData) {
 			solidCells.insert(cellPos);
 		}
 		
-		// Add point to A* graph
+		// Add point to A* graph with weight based on solid flag
+		float weightScale = hasSolidFlag ? std::numeric_limits<float>::infinity() : 1.0f;
 		astar->add_point(pointID, cellPos, weightScale);
 		pointID++;
 	}
@@ -125,7 +125,22 @@ PackedVector2Array FastPathfinding::find_path(const Vector2i& start, const Vecto
 	int endID = endIt->second;
 	
 	if (astar->has_point(startID) && astar->has_point(endID)) {
-		return astar->get_point_path(startID, endID);
+		// Store original end point weight
+		float originalEndWeight = astar->get_point_weight_scale(endID);
+		
+		// Set end point weight to 1 for pathfinding
+		astar->set_point_weight_scale(endID, 1.0f);
+		
+		uint64_t start_us = Time::get_singleton()->get_ticks_usec();
+		PackedVector2Array result = astar->get_point_path(startID, endID);
+		uint64_t end_us = Time::get_singleton()->get_ticks_usec();
+		int64_t ms = static_cast<int64_t>((end_us - start_us) / 1000);
+		
+		
+		// Restore original end point weight
+		astar->set_point_weight_scale(endID, originalEndWeight);
+		
+		return result;
 	} else {
 		return PackedVector2Array();
 	}
@@ -167,7 +182,6 @@ void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionar
 	}
 	
 	int pointID = it->second;
-	float weightScale = 1.0;
 	bool hasSolidFlag = false;
 	
 	// Check if cell has solid flags
@@ -179,7 +193,6 @@ void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionar
 			if (!tileData) continue;
 			uint32_t flags = tileData->get("flags");
 			if (flags & Constants::SOLID_FLAG) {
-				weightScale = std::numeric_limits<float>::infinity();
 				hasSolidFlag = true;
 				break;
 			}
@@ -193,5 +206,28 @@ void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionar
 		solidCells.erase(cellPos);
 	}
 	
+	// Update point weight
+	float weightScale = hasSolidFlag ? std::numeric_limits<float>::infinity() : 1.0f;
 	astar->set_point_weight_scale(pointID, weightScale);
+}
+
+bool FastPathfinding::is_end_reachable(const Vector2i& end) {
+	// Check if end cell exists
+	if (existingCells.find(end) == existingCells.end()) {
+		return false;
+	}
+	
+	// Check if all 8 surrounding cells of end are solid (unreachable)
+	bool allSurroundingSolid = true;
+	for (int i = 0; i < DIRECTIONS.size(); i++) {
+		Vector2i direction = DIRECTIONS[i];
+		Vector2i neighbour = end + direction;
+		if (existingCells.find(neighbour) != existingCells.end() && 
+			solidCells.find(neighbour) == solidCells.end()) {
+			allSurroundingSolid = false;
+			break;
+		}
+	}
+	
+	return !allSurroundingSolid;
 }
