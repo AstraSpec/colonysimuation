@@ -14,7 +14,7 @@ var job :JobDef
 
 func _ready() -> void:
 	position = cellPos * TILE_SIZE
-	JobManager.try_assign_job.connect(_on_try_assign_job)
+	JobManager.try_request_job.connect(request_job)
 	request_job()
 
 func _process(delta: float) -> void:
@@ -40,11 +40,14 @@ func process_job(delta :float) -> void:
 	if job and path.is_empty():
 		execute_job(delta)
 
-func move(targetPos :Vector2i, complete_path :bool = false) -> bool:
+func try_move(targetPos :Vector2i, complete_path :bool = false) -> bool:
 	if !Pathfinding.is_end_reachable(targetPos):
 		return false
 		
 	path = Pathfinding.find_path(cellPos, targetPos)
+	
+	if path.is_empty():
+		return false
 	
 	if !complete_path:
 		path.resize(path.size()-1)
@@ -55,15 +58,13 @@ func move(targetPos :Vector2i, complete_path :bool = false) -> bool:
 	
 	return true
 
-func assign_job(Job :JobDef) -> void:
-	if job: return
-	job = JobManager.find_job(Job, self)
-
 func request_job() -> void:
-	job = JobManager.request_job(self)
+	await get_tree().process_frame
+	if !job:
+		job = JobManager.request_job(self)
 
 func path_to_job(Job :JobDef) -> bool:
-	return move(Job.targetCell, false)
+	return try_move(Job.targetCell, false)
 
 func start_job() -> void:
 	JobManager.track_job(job)
@@ -81,9 +82,6 @@ func complete_job() -> void:
 	job = null
 	
 	request_job()
-
-func _on_try_assign_job(Job: JobDef) -> void:
-	assign_job(Job)
 
 func _on_entity_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:

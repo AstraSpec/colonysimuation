@@ -67,9 +67,13 @@ void FastPathfinding::set_points(const Dictionary& mapData) {
 			solidCells.insert(cellPos);
 		}
 		
-		// Add point to A* graph with weight based on solid flag
-		float weightScale = hasSolidFlag ? std::numeric_limits<float>::infinity() : 1.0f;
-		astar->add_point(pointID, cellPos, weightScale);
+		// Add point to A* graph
+		astar->add_point(pointID, cellPos);
+		
+		// Disable solid points
+		if (hasSolidFlag) {
+			astar->set_point_disabled(pointID, true);
+		}
 		pointID++;
 	}
 	
@@ -125,11 +129,13 @@ PackedVector2Array FastPathfinding::find_path(const Vector2i& start, const Vecto
 	int endID = endIt->second;
 	
 	if (astar->has_point(startID) && astar->has_point(endID)) {
-		// Store original end point weight
-		float originalEndWeight = astar->get_point_weight_scale(endID);
+		// Store original end point disabled state
+		bool wasEndDisabled = astar->is_point_disabled(endID);
 		
-		// Set end point weight to 1 for pathfinding
-		astar->set_point_weight_scale(endID, 1.0f);
+		// Temporarily enable end point if it's solid (for pathfinding to solid targets)
+		if (wasEndDisabled) {
+			astar->set_point_disabled(endID, false);
+		}
 		
 		uint64_t start_us = Time::get_singleton()->get_ticks_usec();
 		PackedVector2Array result = astar->get_point_path(startID, endID);
@@ -137,8 +143,10 @@ PackedVector2Array FastPathfinding::find_path(const Vector2i& start, const Vecto
 		int64_t ms = static_cast<int64_t>((end_us - start_us) / 1000);
 		
 		
-		// Restore original end point weight
-		astar->set_point_weight_scale(endID, originalEndWeight);
+		// Restore original end point disabled state
+		if (wasEndDisabled) {
+			astar->set_point_disabled(endID, true);
+		}
 		
 		return result;
 	} else {
@@ -202,13 +210,11 @@ void FastPathfinding::update_tile_point(const Vector2i& cellPos, const Dictionar
 	// Update solid cells tracking
 	if (hasSolidFlag) {
 		solidCells.insert(cellPos);
+		astar->set_point_disabled(pointID, true);
 	} else {
 		solidCells.erase(cellPos);
+		astar->set_point_disabled(pointID, false);
 	}
-	
-	// Update point weight
-	float weightScale = hasSolidFlag ? std::numeric_limits<float>::infinity() : 1.0f;
-	astar->set_point_weight_scale(pointID, weightScale);
 }
 
 bool FastPathfinding::is_end_reachable(const Vector2i& end) {

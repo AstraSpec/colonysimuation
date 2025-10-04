@@ -90,7 +90,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed:
 			if event.button_index == MOUSE_BUTTON_RIGHT:
 				if Entities.selected:
-					Entities.selected.move(mouseCellPos, true)
+					Entities.selected.try_move(mouseCellPos, true)
 				if isDragging:
 					_end_drag()
 					clear_action()

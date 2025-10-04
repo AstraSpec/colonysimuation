@@ -1,6 +1,6 @@
 extends DbManager
 
-signal try_assign_job(job: JobDef)
+signal try_request_job(job: JobDef)
 signal job_assigned(entity: Node2D, job: JobDef)
 signal job_cleared(job: JobDef)
 
@@ -20,23 +20,29 @@ func add_job(id :String, targetCell :Vector2i, workAmount :float, completeAction
 	var Job :JobDef = JobDef.new(id, targetCell, workAmount, completeAction)
 	jobs.append(Job)
 	
-	emit_signal("try_assign_job", Job)
+	emit_signal("try_request_job")
 
 func request_job(Entity :Node2D) -> JobDef:
+	var potentialJobs :Array[JobDef] = []
+	
 	for job :JobDef in jobs:
 		if not job.reserved:
-			if Entity.path_to_job(job):
-				job.reserved = true
-				emit_signal("job_assigned", Entity, job)
-				return job
-	return null
-
-func find_job(job :JobDef, Entity :Node2D) -> JobDef:
-	if not job.reserved:
+			potentialJobs.append(job)
+	
+	if potentialJobs.is_empty():
+		return null
+	
+	potentialJobs.sort_custom(func(a, b):
+		return Entity.cellPos.distance_squared_to(a.targetCell) < Entity.cellPos.distance_squared_to(b.targetCell)
+	)
+	
+	for job :JobDef in potentialJobs:
 		if Entity.path_to_job(job):
 			job.reserved = true
 			emit_signal("job_assigned", Entity, job)
+			
 			return job
+	
 	return null
 
 func track_job(job :JobDef) -> void:
