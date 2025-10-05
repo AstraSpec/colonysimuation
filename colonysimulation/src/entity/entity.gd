@@ -1,6 +1,8 @@
 extends Node2D
 
 @onready var Pathfinding :FastPathfinding = get_node("/root/Main/World/FastPathfinding")
+@onready var Regions :Node2D = get_node("/root/Main/World/Regions")
+@onready var World :Node2D = get_node("/root/Main/World")
 @onready var Entities :Node2D = get_parent()
 @onready var Area :CollisionShape2D = $EntityArea/CollisionShape2D
 
@@ -43,7 +45,26 @@ func process_job(delta :float) -> void:
 func try_move(targetPos :Vector2i, complete_path :bool = false) -> bool:
 	if !Pathfinding.is_end_reachable(targetPos):
 		return false
-		
+	
+	# Check if regions are connected before attempting pathfinding
+	var startRegion = World.mapData[cellPos].region
+	var endRegion = World.mapData[targetPos].region
+	
+	# If target is solid (region -1), check surrounding 8 cells for reachable regions
+	if endRegion == -1:
+		var reachable = false
+		for dir in [Vector2i(-1,-1), Vector2i(-1,0), Vector2i(-1,1), Vector2i(0,-1), Vector2i(0,1), Vector2i(1,-1), Vector2i(1,0), Vector2i(1,1)]:
+			var neighbourPos = targetPos + dir
+			if World.mapData.has(neighbourPos):
+				var neighbourRegion = World.mapData[neighbourPos].region
+				if neighbourRegion != -1 and Regions.are_regions_connected(startRegion, neighbourRegion):
+					reachable = true
+					break
+		if !reachable:
+			return false
+	elif startRegion != endRegion and !Regions.are_regions_connected(startRegion, endRegion):
+		return false
+	
 	path = Pathfinding.find_path(cellPos, targetPos)
 	
 	if path.is_empty():

@@ -20,7 +20,7 @@ func generate_regions(mapData :Dictionary) -> void:
 		get_neighbours(regionData, mapData)
 		get_tile_indexes(regionData, mapData)
 	
-	var foundTile = find_tile(119, TileManager.tileDb["pointer"], mapData)
+	#var foundTile = find_tile(119, TileManager.tileDb["pointer"], mapData)
 	#print("LOOT GET at cell ", foundTile)
 
 # startID should be region or ID? neighbours RegionDefs or ids?
@@ -63,7 +63,8 @@ func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
 	for i in CHUNK_SIZE ** 2:
 		var cellPos := Vector2i(i / CHUNK_SIZE, i % CHUNK_SIZE) + chunkPos * CHUNK_SIZE
 		
-		if mapData[cellPos].region == -1:
+		# Only process cells that haven't been assigned to a region yet and are not solid
+		if mapData[cellPos].region == -1 and !is_cell_solid(cellPos, mapData):
 			var region := RegionDef.new()
 			region.id = totalRegions
 			
@@ -71,6 +72,7 @@ func create_regions(chunkPos :Vector2i, mapData :Dictionary) -> void:
 				region.tileIndex.append({})
 			
 			regionDb[totalRegions] = region
+			# Start flood-fill from this cell in all directions
 			flood_fill_region(cellPos, Vector2i.ZERO, mapData)
 			totalRegions += 1
 
@@ -80,13 +82,28 @@ func flood_fill_region(pos :Vector2i, dir :Vector2i, mapData :Dictionary) -> voi
 	
 	if mapData.get(floodPos) \
 	and mapData[floodPos].region == -1 \
-	and mapData[pos].chunk == mapData[floodPos].chunk:
+	and mapData[pos].chunk == mapData[floodPos].chunk \
+	and !is_cell_solid(floodPos, mapData):
 		
 		mapData[floodPos].region = totalRegions
 		regionDb[totalRegions].cells.append(floodPos)
 		
-		for floodDir in FLOOD_DIRS:
+		# Check all 4 directions to ensure complete flood-fill
+		for floodDir in DIRS:
 			flood_fill_region(floodPos, floodDir, mapData)
+
+# Check if a cell is solid
+func is_cell_solid(cellPos :Vector2i, mapData :Dictionary) -> bool:
+	var cellData = mapData.get(cellPos)
+	if !cellData:
+		return false
+	
+	var tiles = cellData.tiles
+	for tileData in tiles:
+		if tileData != null and Constants.has_flag(tileData.flags, "SOLID"):
+			return true
+	
+	return false
 
 func get_neighbours(regionData :RegionDef, mapData :Dictionary) -> void:
 	for cell in regionData.cells:
@@ -136,3 +153,35 @@ func print_tile_indexes(regionID :int):
 	for layer in tileIndex:
 		for tile :TileDef in layer:
 			prints(tile.id, layer[tile])
+
+# Hierarchical pathfinding methods
+func are_regions_connected(regionA :int, regionB :int) -> bool:
+	if !regionDb.has(regionA) or !regionDb.has(regionB):
+		return false
+	
+	if regionA == regionB:
+		return true
+	
+	# Use BFS to check if there's any path between regions
+	var visited :Array = []
+	var queue :Array = [regionA]
+	
+	while queue.size() > 0:
+		var currentRegion = queue.pop_front()
+		
+		if visited.has(currentRegion):
+			continue
+		
+		visited.append(currentRegion)
+		
+		if currentRegion == regionB:
+			return true
+		
+		# Add all connected regions to queue
+		if regionDb.has(currentRegion):
+			for neighbour_id in regionDb[currentRegion].neighbours.keys():
+				if !visited.has(neighbour_id):
+					queue.append(neighbour_id)
+	
+	return false
+
