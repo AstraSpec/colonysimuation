@@ -52,7 +52,7 @@ func set_cell(cellPos :Vector2i, tileData :TileDef) -> void:
 	Tilemap.update_y_canvas_item(cellPos.y, mapData)
 	
 	# Region
-	Regions.add_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
+	#Regions.add_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
 	
 	# Pathfinding
 	Pathfinding.update_tile_point(cellPos, mapData)
@@ -75,7 +75,11 @@ func clear_cell(cellPos :Vector2i, layer :int) -> void:
 	Tilemap.update_y_canvas_item(cellPos.y, mapData)
 	
 	# Region
-	Regions.remove_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
+	#Regions.remove_tile_index(Regions.get_tile_index(cellData.region, layer), tileData)
+	
+	# Assign region to cleared cell if it's no longer solid
+	if !Regions.is_cell_solid(cellPos, mapData):
+		Regions.assign_region_to_cell(cellPos, mapData)
 	
 	# Pathfinding
 	Pathfinding.update_tile_point(cellPos, mapData)

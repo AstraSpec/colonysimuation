@@ -185,3 +185,36 @@ func are_regions_connected(regionA :int, regionB :int) -> bool:
 	
 	return false
 
+func assign_region_to_cell(cellPos :Vector2i, mapData :Dictionary) -> void:
+	# Only assign regions within the same chunk
+	var cellChunk = mapData[cellPos].chunk
+	var surroundingRegions :Array = []
+	
+	# Check surrounding cells to find an existing region to join (only within same chunk)
+	for dir in [Vector2i(-1,0), Vector2i(0,-1), Vector2i(0,1), Vector2i(1,0)]:
+		var neighbourPos = cellPos + dir
+		if mapData.has(neighbourPos):
+			var neighbourData = mapData[neighbourPos]
+			# Only consider neighbours within the same chunk
+			if neighbourData.chunk == cellChunk:
+				var neighbourRegion = neighbourData.region
+				if neighbourRegion != -1 and !surroundingRegions.has(neighbourRegion):
+					surroundingRegions.append(neighbourRegion)
+	
+	if surroundingRegions.size() > 0:
+		# Join the first available region
+		var targetRegion = surroundingRegions[0]
+		mapData[cellPos].region = targetRegion
+		regionDb[targetRegion].cells.append(cellPos)
+	else:
+		# Create a new region
+		var newRegion = RegionDef.new()
+		newRegion.id = totalRegions
+		
+		for layer in TILE_LAYERS:
+			newRegion.tileIndex.append({})
+		
+		regionDb[totalRegions] = newRegion
+		mapData[cellPos].region = totalRegions
+		newRegion.cells.append(cellPos)
+		totalRegions += 1
