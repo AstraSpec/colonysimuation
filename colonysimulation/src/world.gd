@@ -21,6 +21,7 @@ var dragAppliedCells :Dictionary = {}
 var dragSelection :RectangleShape2D = RectangleShape2D.new()
 
 var pendingAction :ActionDef
+var showRegionDebug :bool = false
 
 func start() -> void:
 	mapData = WorldGeneration.generate_world()
@@ -109,9 +110,13 @@ func _unhandled_input(event: InputEvent) -> void:
 				_apply_drag_rect(dragCellOrigin, mouseCellPos)
 				_end_drag()
 
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		clear_action()
-		Entities.update_selected(null)
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_ESCAPE:
+			clear_action()
+			Entities.update_selected(null)
+		elif event.keycode == KEY_F4:
+			showRegionDebug = !showRegionDebug
+			queue_redraw()
 
 func update_mouse_cell_pos() -> void:
 	var globalPos :Vector2i = get_local_mouse_position()
@@ -204,6 +209,9 @@ func _draw() -> void:
 	elif pendingAction:
 		var rect := Rect2(mouseCellPos * TILE_SIZE, Vector2(TILE_SIZE, TILE_SIZE))
 		draw_rect(rect, Color.WHITE, false, 2.0)
+	
+	if showRegionDebug:
+		_draw_region_debug_overlay()
 
 func _draw_selectable_overlay_in_area(topLeft: Vector2i, bottomRight: Vector2i) -> void:
 	if not pendingAction or not pendingAction.validation or not pendingAction.validation.is_valid():
@@ -215,6 +223,21 @@ func _draw_selectable_overlay_in_area(topLeft: Vector2i, bottomRight: Vector2i) 
 			if pendingAction.validation.call(cellPos):
 				var rect = Rect2(Vector2(cellPos * TILE_SIZE), Vector2(TILE_SIZE, TILE_SIZE))
 				draw_rect(rect, Color(1, 1, 1, 0.3), true)  # Semi-transparent white
+
+func _draw_region_debug_overlay() -> void:
+	var cellData = mapData.get(mouseCellPos)
+	if not cellData or cellData.region == -1:
+		return
+	
+	var regionId = cellData.region
+	if not Regions.regionDb.has(regionId):
+		return
+	
+	var region = Regions.regionDb[regionId]
+	for cellPos in region.cells:
+		var rect = Rect2(Vector2(cellPos * TILE_SIZE), Vector2(TILE_SIZE, TILE_SIZE))
+		draw_rect(rect, Color(0, 1, 0, 0.2), true)  # Semi-transparent green
+
 
 func validate_mining_job(cellPos: Vector2i) -> bool:
 	if not mapData.has(cellPos):
