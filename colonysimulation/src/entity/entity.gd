@@ -33,6 +33,8 @@ func process_pathing(delta :float) -> void:
 			z_index = cellPos.y
 			path.remove_at(0)
 			
+			Entities.update_entity_path(self, path)
+			
 			if path.size() == 0 and job != null:
 				start_job()
 		else:
