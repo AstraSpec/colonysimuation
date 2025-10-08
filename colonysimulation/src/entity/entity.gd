@@ -86,9 +86,6 @@ func request_job() -> void:
 	if !job:
 		job = JobManager.request_job(self)
 
-func path_to_job(Job :JobDef) -> bool:
-	return try_move(Job.targetCell, false)
-
 func start_job() -> void:
 	JobManager.track_job(job)
 

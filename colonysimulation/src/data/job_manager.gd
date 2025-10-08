@@ -37,7 +37,7 @@ func request_job(Entity :Node2D) -> JobDef:
 	)
 	
 	for job :JobDef in potentialJobs:
-		if Entity.path_to_job(job):
+		if Entity.try_move(job.targetCell, false):
 			job.reserved = true
 			emit_signal("job_assigned", Entity, job)
 			
