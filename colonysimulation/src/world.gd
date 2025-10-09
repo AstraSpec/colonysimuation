@@ -293,6 +293,30 @@ func start_logging_job(cellPos :Vector2i) -> void:
 func complete_logging_job(cellPos :Vector2i) -> void:
 	clear_cell(cellPos, 2)
 
+func validate_building_job(cellPos: Vector2i) -> bool:
+	if not mapData.has(cellPos):
+		return false
+	
+	var cellData = mapData[cellPos]
+	var objectData = cellData.tiles[2]
+	
+	if objectData:
+		return false
+	
+	return true
+
+func start_building_job(cellPos :Vector2i) -> void:
+	if not validate_building_job(cellPos):
+		return
+	
+	var workAmount = 2
+	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(0, 0))
+	
+	JobManager.add_job("build", cellPos, workAmount, Callable(self, "complete_building_job"))
+
+func complete_building_job(cellPos :Vector2i) -> void:
+	set_cell(cellPos, TileManager.tileDb["stone_wall"])
+
 func _on_job_assigned(_entity: Node2D, job: JobDef) -> void:
 	Tilemap.add_work_canvas_item(job.targetCell, Icons, Vector2i(1, 0))
 

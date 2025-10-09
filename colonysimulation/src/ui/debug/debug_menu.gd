@@ -20,6 +20,7 @@ func init_debug() -> void:
 	init_button("Clear object", Callable(World, "drag_cell"), [Callable(World, "clear_cell"), [mouse_cell_pos, 2]])
 	init_button("Add mining job", Callable(World, "drag_cell"), [Callable(World, "start_mining_job"), [mouse_cell_pos]], Callable(World, "validate_mining_job"))
 	init_button("Add logging job", Callable(World, "drag_cell"), [Callable(World, "start_logging_job"), [mouse_cell_pos]], Callable(World, "validate_logging_job"))
+	init_button("Add building job", Callable(World, "drag_cell"), [Callable(World, "start_building_job"), [mouse_cell_pos]], Callable(World, "validate_building_job"))
 
 func init_button(text :String, action :Callable, args = [], validation :Callable = Callable()) -> void:
 	var instance = DebugButton.instantiate()
