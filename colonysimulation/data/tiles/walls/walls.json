@@ -18,5 +18,15 @@
 	"hardness": 7,
 	"texture": "walls.png",
 	"flags": ["AUTOTILE", "SOLID", "WALL"]
+  },
+  {
+	"id": "wooden_wall",
+	"name": "Wooden Wall",
+	"type": "object",
+	"work": 3,
+	"atlas": [0, 12],
+	"hardness": 3,
+	"texture": "walls.png",
+	"flags": ["AUTOTILE", "SOLID", "WALL"]
   }
 ] 

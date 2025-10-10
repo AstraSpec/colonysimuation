@@ -309,13 +309,13 @@ func start_building_job(cellPos :Vector2i) -> void:
 	if not validate_building_job(cellPos):
 		return
 	
-	var workAmount = 2
+	var workAmount = 1
 	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(0, 0))
 	
 	JobManager.add_job("build", cellPos, workAmount, Callable(self, "complete_building_job"))
 
 func complete_building_job(cellPos :Vector2i) -> void:
-	set_cell(cellPos, TileManager.tileDb["stone_wall"])
+	set_cell(cellPos, TileManager.tileDb["wooden_wall"])
 
 func _on_job_assigned(_entity: Node2D, job: JobDef) -> void:
 	Tilemap.add_work_canvas_item(job.targetCell, Icons, Vector2i(1, 0))
