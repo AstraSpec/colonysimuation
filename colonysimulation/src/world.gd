@@ -310,7 +310,7 @@ func start_building_job(cellPos :Vector2i) -> void:
 		return
 	
 	var workAmount = 1
-	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(0, 0))
+	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(2, 0))
 	
 	JobManager.add_job("build", cellPos, workAmount, Callable(self, "complete_building_job"))
 
