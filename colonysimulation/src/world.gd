@@ -238,7 +238,6 @@ func _draw_region_debug_overlay() -> void:
 		var rect = Rect2(Vector2(cellPos * TILE_SIZE), Vector2(TILE_SIZE, TILE_SIZE))
 		draw_rect(rect, Color(0, 1, 0, 0.2), true)  # Semi-transparent green
 
-
 func validate_mining_job(cellPos: Vector2i) -> bool:
 	if not mapData.has(cellPos):
 		return false

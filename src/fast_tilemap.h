@@ -36,6 +36,7 @@ protected:
     
     std::unordered_map<int, RID> y_level_canvas_items;
     std::unordered_map<Vector2i, RID> work_canvas_items;
+    std::unordered_map<Vector2i, RID> item_canvas_items;
 
     std::unordered_map<int, std::unordered_set<Vector2i>> autotile_positions;
     void set_autotile_positions(Dictionary mapData);
@@ -58,6 +59,10 @@ public:
     void add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas);
     void remove_work_canvas_item(Vector2i cellPos);
     void clear_all_work_canvas_items();
+    
+    void add_item_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas);
+    void remove_item_canvas_item(Vector2i cellPos);
+    void clear_all_item_canvas_items();
 };
 
 }

@@ -1,0 +1,26 @@
+[
+  {
+	"id": "null",
+	"name": "null item",
+	"atlas": [0, 0],
+	"texture": "items.png",
+  },
+  {
+	"id": "stone",
+	"name": "stone",
+	"atlas": [1, 0],
+	"texture": "items.png",
+  },
+  {
+	"id": "wood",
+	"name": "wood",
+	"atlas": [0, 1],
+	"texture": "items.png",
+  },
+  {
+	"id": "coconut",
+	"name": "coconut",
+	"atlas": [1, 1],
+	"texture": "items.png",
+  }
+] 

@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 TileManager="*res://src/data/tile_manager.gd"
 JobManager="*res://src/data/job_manager.gd"
+ItemManager="*res://src/data/item_manager.gd"
 
 [debug]
 

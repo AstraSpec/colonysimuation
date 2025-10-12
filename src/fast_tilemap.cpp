@@ -61,6 +61,9 @@ void FastTileMap::_bind_methods() {
     ClassDB::bind_method(D_METHOD("add_work_canvas_item", "cellPos", "texture", "atlas"), &FastTileMap::add_work_canvas_item);
     ClassDB::bind_method(D_METHOD("remove_work_canvas_item", "cellPos"), &FastTileMap::remove_work_canvas_item);
     ClassDB::bind_method(D_METHOD("clear_all_work_canvas_items"), &FastTileMap::clear_all_work_canvas_items);
+    ClassDB::bind_method(D_METHOD("add_item_canvas_item", "cellPos", "texture", "atlas"), &FastTileMap::add_item_canvas_item);
+    ClassDB::bind_method(D_METHOD("remove_item_canvas_item", "cellPos"), &FastTileMap::remove_item_canvas_item);
+    ClassDB::bind_method(D_METHOD("clear_all_item_canvas_items"), &FastTileMap::clear_all_item_canvas_items);
 }
 
 FastTileMap::FastTileMap() {
@@ -81,6 +84,7 @@ FastTileMap::~FastTileMap() {
     y_level_canvas_items.clear();
     
     clear_all_work_canvas_items();
+    clear_all_item_canvas_items();
 }
 
 void FastTileMap::redraw_tiles(Dictionary mapData) {
@@ -284,4 +288,41 @@ void FastTileMap::clear_all_work_canvas_items() {
         RenderingServer::get_singleton()->free_rid(pair.second);
     }
     work_canvas_items.clear();
+}
+
+void FastTileMap::add_item_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas) {
+    remove_item_canvas_item(cellPos);
+    
+    RID canvas_item = RenderingServer::get_singleton()->canvas_item_create();
+    RID parent_canvas = get_canvas();
+    RenderingServer::get_singleton()->canvas_item_set_parent(canvas_item, parent_canvas);
+    
+    // Set position
+    Vector2 world_pos = Vector2(cellPos * TILE_SIZE);
+    RenderingServer::get_singleton()->canvas_item_set_transform(canvas_item, Transform2D(0, world_pos));
+    RenderingServer::get_singleton()->canvas_item_set_z_index(canvas_item, Constants::WORLD_SIZE + 2);
+    
+    // Draw provided texture region
+    if (texture.is_valid()) {
+        Rect2 dest_rect = Rect2(0, 0, TILE_SIZE, TILE_SIZE);
+        Rect2 src_rect = Rect2(atlas.x * TILE_SIZE, atlas.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(canvas_item, dest_rect, texture->get_rid(), src_rect);
+    }
+    
+    item_canvas_items[cellPos] = canvas_item;
+}
+
+void FastTileMap::remove_item_canvas_item(Vector2i cellPos) {
+    auto it = item_canvas_items.find(cellPos);
+    if (it != item_canvas_items.end()) {
+        RenderingServer::get_singleton()->free_rid(it->second);
+        item_canvas_items.erase(it);
+    }
+}
+
+void FastTileMap::clear_all_item_canvas_items() {
+    for (auto& pair : item_canvas_items) {
+        RenderingServer::get_singleton()->free_rid(pair.second);
+    }
+    item_canvas_items.clear();
 }

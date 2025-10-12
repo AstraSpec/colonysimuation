@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://difwwdbonnxjm"]
+[gd_scene load_steps=17 format=3 uid="uid://difwwdbonnxjm"]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_c6mbo"]
 [ext_resource type="Script" path="res://src/world_generation.gd" id="1_rx1eh"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://src/entities.gd" id="8_mq6vu"]
 [ext_resource type="Script" path="res://src/ui/ui.gd" id="9_bfo0p"]
 [ext_resource type="Script" path="res://src/world_info.gd" id="9_c3gq7"]
+[ext_resource type="Script" path="res://src/items.gd" id="9_hi1nh"]
 [ext_resource type="Theme" uid="uid://dp5bub3nyq2jf" path="res://assets/themes/default.tres" id="10_nybe6"]
 [ext_resource type="Script" path="res://src/ui/debug/debug_menu.gd" id="12_t1uuq"]
 [ext_resource type="Script" path="res://src/ui/action_hint.gd" id="13_lh0c6"]
@@ -67,6 +68,11 @@ script = ExtResource("8_mq6vu")
 
 [node name="FastPathfinding" type="FastPathfinding" parent="World"]
 
+[node name="Items" type="Node2D" parent="World" node_paths=PackedStringArray("World", "Tilemap")]
+script = ExtResource("9_hi1nh")
+World = NodePath("..")
+Tilemap = NodePath("../FastTileMap")
+
 [node name="UI" type="CanvasLayer" parent="." node_paths=PackedStringArray("DebugMenu")]
 script = ExtResource("9_bfo0p")
 DebugMenu = NodePath("DebugMenu")
@@ -108,7 +114,7 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Entities", "FastTilemap", "ActionHint")]
+[node name="DebugMenu" type="Control" parent="UI" node_paths=PackedStringArray("ButtonContainer", "World", "Items", "Entities", "FastTilemap", "ActionHint")]
 visible = false
 layout_mode = 3
 anchor_left = 0.0208333
@@ -121,6 +127,7 @@ theme = ExtResource("10_nybe6")
 script = ExtResource("12_t1uuq")
 ButtonContainer = NodePath("MarginContainer/VBoxContainer/HBoxContainer/ButtonContainer")
 World = NodePath("../../World")
+Items = NodePath("../../World/Items")
 Entities = NodePath("../../World/Entities")
 FastTilemap = NodePath("../../World/FastTileMap")
 ActionHint = NodePath("../ActionHint")
