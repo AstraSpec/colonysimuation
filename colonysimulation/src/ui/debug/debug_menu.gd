@@ -2,6 +2,7 @@ extends Control
 
 @export var ButtonContainer :VBoxContainer
 @export var World :Node2D
+@export var Items :Node2D
 @export var Entities :Node2D
 @export var FastTilemap :FastTileMap
 @export var ActionHint :Control
@@ -21,6 +22,7 @@ func init_debug() -> void:
 	init_button("Add mining job", Callable(World, "drag_cell"), [Callable(World, "start_mining_job"), [mouse_cell_pos]], Callable(World, "validate_mining_job"))
 	init_button("Add logging job", Callable(World, "drag_cell"), [Callable(World, "start_logging_job"), [mouse_cell_pos]], Callable(World, "validate_logging_job"))
 	init_button("Add building job", Callable(World, "drag_cell"), [Callable(World, "start_building_job"), [mouse_cell_pos]], Callable(World, "validate_building_job"))
+	init_button("Spawn wood", Callable(Items, "spawn_item"), [mouse_cell_pos, ItemManager.itemDb["wood"], 1])
 
 func init_button(text :String, action :Callable, args = [], validation :Callable = Callable()) -> void:
 	var instance = DebugButton.instantiate()

@@ -24,6 +24,12 @@ namespace std {
 
 namespace godot {
 
+enum class CanvasItemLayer {
+    WORK,
+    ITEMS,
+    STOCKPILES
+};
+
 class FastTileMap: public Node2D{
     GDCLASS(FastTileMap, Node2D)
 
@@ -35,14 +41,14 @@ protected:
     static const std::unordered_map<int, Vector2i> autotile_variant_map;
     
     std::unordered_map<int, RID> y_level_canvas_items;
-    std::unordered_map<Vector2i, RID> work_canvas_items;
-    std::unordered_map<Vector2i, RID> item_canvas_items;
+    std::unordered_map<CanvasItemLayer, std::unordered_map<Vector2i, RID>> canvas_item_layers;
 
     std::unordered_map<int, std::unordered_set<Vector2i>> autotile_positions;
     void set_autotile_positions(Dictionary mapData);
 
     static Vector2i resolve_atlas(Vector2i cellPos, Object* tileData);
     void render_tile(RID target_canvas, Vector2i cellPos, Vector2i atlas, Vector2i offset, Vector2i size, Ref<Texture2D> texture);
+    static int get_layer_z_index(CanvasItemLayer layer);
 
 public:
     FastTileMap();
@@ -56,13 +62,9 @@ public:
 
     void update_y_canvas_item(int y_level, Dictionary mapData);
     
-    void add_work_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas);
-    void remove_work_canvas_item(Vector2i cellPos);
-    void clear_all_work_canvas_items();
-    
-    void add_item_canvas_item(Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas);
-    void remove_item_canvas_item(Vector2i cellPos);
-    void clear_all_item_canvas_items();
+    void add_canvas_item(int layer, Vector2i cellPos, Ref<Texture2D> texture, Vector2i atlas);
+    void remove_canvas_item(int layer, Vector2i cellPos);
+    void clear_canvas_layer(int layer);
 };
 
 }

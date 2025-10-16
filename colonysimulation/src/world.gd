@@ -258,7 +258,7 @@ func start_mining_job(cellPos :Vector2i) -> void:
 	var objectData :TileDef = mapData[cellPos].tiles[2]
 	var workAmount = objectData.work
 	
-	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(0, 0))
+	Tilemap.add_canvas_item(FastTileMap.CANVAS_ITEM_LAYER_WORK, cellPos, Icons, Vector2i(0, 0))
 	
 	JobManager.add_job("mine", cellPos, workAmount, Callable(self, "complete_mining_job"))
 
@@ -285,7 +285,7 @@ func start_logging_job(cellPos :Vector2i) -> void:
 	var objectData :TileDef = mapData[cellPos].tiles[2]
 	var workAmount = objectData.work
 	
-	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(0, 0))
+	Tilemap.add_canvas_item(FastTileMap.CANVAS_ITEM_LAYER_WORK, cellPos, Icons, Vector2i(0, 0))
 	
 	JobManager.add_job("log", cellPos, workAmount, Callable(self, "complete_logging_job"))
 
@@ -309,7 +309,7 @@ func start_building_job(cellPos :Vector2i) -> void:
 		return
 	
 	var workAmount = 1
-	Tilemap.add_work_canvas_item(cellPos, Icons, Vector2i(2, 0))
+	Tilemap.add_canvas_item(FastTileMap.CANVAS_ITEM_LAYER_WORK, cellPos, Icons, Vector2i(2, 0))
 	
 	JobManager.add_job("build", cellPos, workAmount, Callable(self, "complete_building_job"))
 
@@ -317,7 +317,7 @@ func complete_building_job(cellPos :Vector2i) -> void:
 	set_cell(cellPos, TileManager.tileDb["wooden_wall"])
 
 func _on_job_assigned(_entity: Node2D, job: JobDef) -> void:
-	Tilemap.add_work_canvas_item(job.targetCell, Icons, Vector2i(1, 0))
+	Tilemap.add_canvas_item(FastTileMap.CANVAS_ITEM_LAYER_WORK, job.targetCell, Icons, Vector2i(1, 0))
 
 func _on_job_cleared(job: JobDef) -> void:
-	Tilemap.remove_work_canvas_item(job.targetCell)
+	Tilemap.remove_canvas_item(FastTileMap.CANVAS_ITEM_LAYER_WORK, job.targetCell)
